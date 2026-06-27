@@ -1,11 +1,27 @@
 const express = require("express");
-// const routes = require("./routes/routes");
-// const connectDB = require("./database/db");
+const dotenv = require("dotenv");
+const connectDB = require('./db');
+const router = require("./routes/router");
+const cors = require('cors');
+
+dotenv.config();
+
+connectDB();
 
 const app = express();
 
 app.use(express.json());
 
-app.listen(3000, () => {
-    console.log("the server is running on port number 3000");
+// app.use(cors({
+//     origin: process.env.FRONTEND_URL,
+//     credentials: true
+// }))
+
+app.use('/v1/', router)
+
+const PORT = process.env.PORT;
+
+app.listen(PORT, () => {
+    console.log("the server is running on port number ", PORT);
+    // console.log(process.env.MONGODB_URI);
 });
