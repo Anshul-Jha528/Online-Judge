@@ -1,12 +1,16 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import axios from "axios";
+import { toast, ToastContainer } from "react-toastify";
 
 const Register = () => {
+  const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [errors, setErrors] = useState({});
   const [name, setName] = useState("");
   const [cpassword, setCPassword] = useState("");
+
 
   const validate = () => {
     const newErrors = {};
@@ -23,20 +27,35 @@ const Register = () => {
     if (!password) {
       newErrors.password = "Password is required";
     }
-    if (!cpassword) {
+    else if (!cpassword) {
       newErrors.cpassword = "Confirm Password is required";
     }
-    if (password !== cpassword) {
+    else if (password !== cpassword) {
       newErrors.cpassword = "Passwords do not match";
     }
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit =  async (e) => {
     e.preventDefault();
     if (validate()) {
-      console.log("Form submitted successfully:", { email, password });
+      try{
+        const res = await axios.post(`${import.meta.env.VITE_BACKEND_URI}/v1/register`,
+        {fullName:name, email, password}
+      )
+      console.log(res.data);
+      toast.success("Registered successfully", {
+        onClose:() => navigate("/login"),
+        autoClose:3000
+      });
+      }
+      catch(err){
+        console.log(err.message);
+        toast.error("Something went wrong",{
+          autoClose:3000
+        })
+      }
     }
   };
 
@@ -82,7 +101,7 @@ const Register = () => {
                   placeholder-[#6e7b9e]
                   transition-all
                   duration-300
-                  ${errors.email ? "ring-1 ring-red-500/50" : ""}
+                  ${errors.name ? "ring-1 ring-red-500/50" : ""}
                 `}
               />
               {errors.name && (
@@ -238,6 +257,11 @@ const Register = () => {
               Login
             </Link>
           </p>
+
+          <ToastContainer 
+            position="top-right"
+            autoClose={3000}
+          />
 
         </div>
       </div>

@@ -6,6 +6,9 @@ const jwt = require("jsonwebtoken");
 const registerUser = async (req, res) => {
     try {
         const {fullName, email, password} = req.body;
+        if(!fullName || !email || !password){
+            return res.status(400).json({ message: "All fields are required" });
+        }
         const existingUser = await User.findOne({email: email});
         if(existingUser){
             return res.status(400).json({ message: "User already exists" });
@@ -38,9 +41,12 @@ const registerUser = async (req, res) => {
 const loginUser = async (req, res) => {
     try {
         const {email, password} = req.body;
+        if(!email || !password){
+            return res.status(400).json({ message: "All fields are required" });
+        }
         const existingUser = await User.findOne({email: email});
         if(!existingUser){
-            return res.status(400).json({ message: "User not found" });
+            return res.status(400).json({ message: "Invalid username or password" });
         }
         const isMatch = await bcrypt.compare(password, existingUser.hashPassword);
         if(!isMatch){

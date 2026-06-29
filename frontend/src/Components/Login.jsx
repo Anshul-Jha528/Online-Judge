@@ -1,7 +1,10 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import axios from "axios";
+import { ToastContainer, toast } from "react-toastify";
 
 const Login = () => {
+  const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [errors, setErrors] = useState({});
@@ -20,10 +23,23 @@ const Login = () => {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (validate()) {
-      console.log("Form submitted successfully:", { email, password });
+      try{
+        const res = await axios.post(`${import.meta.env.VITE_BACKEND_URI}/v1/login`,{
+          email,password
+        })
+        console.log(res.data);
+        toast.success("Login successful",{
+          onClose:()=>navigate("/Dashboard"),
+          autoClose:3000
+        })
+      }
+      catch(err){
+        console.log(err.message);
+        toast.error("Something went wrong")
+      }
     }
   };
 
@@ -150,6 +166,11 @@ const Login = () => {
               Register
             </Link>
           </p>
+
+          <ToastContainer
+            position="top-right"
+            autoClose={3000}
+          />
 
         </div>
       </div>
