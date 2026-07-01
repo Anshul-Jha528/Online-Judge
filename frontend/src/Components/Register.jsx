@@ -1,10 +1,17 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { toast, ToastContainer } from "react-toastify";
 
+
+
 const Register = () => {
   const navigate = useNavigate();
+  useEffect(() => {
+    if (localStorage.getItem("token")) {
+        navigate("/dashboard", { replace: true });
+    }
+}, [navigate]);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [errors, setErrors] = useState({});
@@ -41,12 +48,12 @@ const Register = () => {
     e.preventDefault();
     if (validate()) {
       try{
-        const res = await axios.post(`${import.meta.env.VITE_BACKEND_URI}/v1/register`,
+        const res = await axios.post(`${import.meta.env.VITE_BACKEND_URI}/v1/auth/register`,
         {fullName:name, email, password}
       )
       console.log(res.data);
       toast.success("Registered successfully", {
-        onClose:() => navigate("/login"),
+        onClose:() => navigate("/login", {replace:true}),
         autoClose:3000
       });
       }

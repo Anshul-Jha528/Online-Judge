@@ -1,8 +1,12 @@
 const express = require("express");
 const dotenv = require("dotenv");
 const connectDB = require('./db');
-const router = require("./routes/router");
+const authRouter = require("./routes/authRouter");
+const adminRouter = require('./routes/adminRouter')
+const userRouter = require('./routes/userRouter')
 const cors = require('cors');
+const verifyToken = require('./middleware/verifyToken')
+const isAdmin = require('./middleware/isAdmin')
 
 dotenv.config();
 
@@ -17,7 +21,9 @@ app.use(cors({
 
 app.use(express.json());
 
-app.use('/v1/', router)
+app.use('/v1/auth/', authRouter);
+app.use('/v1/admin/', verifyToken, isAdmin, adminRouter);
+app.use('/v1/user/', verifyToken, userRouter);
 
 const PORT = process.env.PORT;
 

@@ -1,10 +1,15 @@
-import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { Link, replace, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { ToastContainer, toast } from "react-toastify";
 
-const Login = () => {
+const Login = () => {  
   const navigate = useNavigate();
+  useEffect(() => {
+    if (localStorage.getItem("token")) {
+        navigate("/dashboard", { replace: true });
+    }
+}, [navigate]);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [errors, setErrors] = useState({});
@@ -23,16 +28,23 @@ const Login = () => {
     return Object.keys(newErrors).length === 0;
   };
 
+  const setAuthToken = async (token, name) => {
+
+    localStorage.setItem("token", token);
+    localStorage.setItem("username", name);
+  }
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (validate()) {
       try{
-        const res = await axios.post(`${import.meta.env.VITE_BACKEND_URI}/v1/login`,{
+        const res = await axios.post(`${import.meta.env.VITE_BACKEND_URI}/v1/auth/login`,{
           email,password
         })
+        setAuthToken(res.data.token, res.data.username);
         console.log(res.data);
         toast.success("Login successful",{
-          onClose:()=>navigate("/Dashboard"),
+          onClose:()=>navigate("/Dashboard", {replace:true}),
           autoClose:3000
         })
       }
