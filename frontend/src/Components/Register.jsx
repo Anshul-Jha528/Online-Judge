@@ -265,11 +265,6 @@ const Register = () => {
             </Link>
           </p>
 
-          <ToastContainer 
-            position="top-right"
-            autoClose={3000}
-          />
-
         </div>
       </div>
     </div>

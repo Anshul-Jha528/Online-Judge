@@ -2,6 +2,7 @@ const Problem = require('../model/Problems');
 const TestCase = require('../model/TestCases');
 const Counter = require('../model/Counter');
 const User = require('../model/Users');
+const Problems = require('../model/Problems');
 
 const createProblem = async (req, res) => {
     try {
@@ -93,6 +94,20 @@ const deleteProblem = async (req, res) =>{
     } catch (error) {
         console.error("Error while deleting problem ", error);
         res.status(500).json({message: "Internal server error"});
+    }
+}
+
+const getAllProblems = async (req, res) =>{
+    try{
+        const userID = req.params.userID;
+        const problems = await Problems.find({authorID:userID});
+        if(problems.length === 0){
+            return res.status(404).json({message: "No problems found"});
+        }
+        res.status(200).json({message: "Problems found", problems: problems});
+    }catch(error){
+        console.error("Error while getting problems ", error);
+        res.status(500).json({message: "Error fetching problems"});
     }
 }
 
@@ -204,4 +219,4 @@ const deleteTestCase = async (req, res) => {
     }
 }
 
-module.exports = { createProblem, updateProblem, deleteProblem, getProblem, getTestCase, updateTestCase, createTestCase, deleteTestCase };
+module.exports = { createProblem, updateProblem, deleteProblem, getAllProblems, getProblem, getTestCase, updateTestCase, createTestCase, deleteTestCase };

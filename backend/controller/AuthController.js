@@ -53,7 +53,7 @@ const loginUser = async (req, res) => {
             return res.status(400).json({ message: "Invalid username or password" });
         }
         const token = jwt.sign({userID: existingUser.userID}, process.env.JWT_SECRET, {expiresIn: process.env.EXPIRY});
-        res.status(200).json({ message: "User logged in successfully", username: existingUser.fullName, token: token });
+        res.status(200).json({ message: "User logged in successfully", username: existingUser.fullName, token: token, userID: existingUser.userID });
     } catch (error) {
         console.error("Error while logging in ", error);
         res.status(500).json({ message: "Internal server error" });
@@ -62,10 +62,11 @@ const loginUser = async (req, res) => {
 
 const makeUserAdmin = async (req, res) => {
     try {
-        const {userID} = req.body;
+        const userID = req.body.userID;
         if(!userID){
             return res.status(400).json({ message: "User ID is required" });
         }
+        console.log(userID);
         const existingUser = await User.findOne({userID: userID});
         if(!existingUser){
             return res.status(404).json({ message: "User not found" });

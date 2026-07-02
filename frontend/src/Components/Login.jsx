@@ -9,7 +9,7 @@ const Login = () => {
     if (localStorage.getItem("token")) {
         navigate("/dashboard", { replace: true });
     }
-}, [navigate]);
+  }, [navigate]);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [errors, setErrors] = useState({});
@@ -28,10 +28,11 @@ const Login = () => {
     return Object.keys(newErrors).length === 0;
   };
 
-  const setAuthToken = async (token, name) => {
+  const setAuthToken = async (token, name, userID) => {
 
     localStorage.setItem("token", token);
     localStorage.setItem("username", name);
+    localStorage.setItem("userID", userID);
   }
 
   const handleSubmit = async (e) => {
@@ -41,7 +42,7 @@ const Login = () => {
         const res = await axios.post(`${import.meta.env.VITE_BACKEND_URI}/v1/auth/login`,{
           email,password
         })
-        setAuthToken(res.data.token, res.data.username);
+        setAuthToken(res.data.token, res.data.username, res.data.userID);
         console.log(res.data);
         toast.success("Login successful",{
           onClose:()=>navigate("/Dashboard", {replace:true}),
@@ -178,11 +179,6 @@ const Login = () => {
               Register
             </Link>
           </p>
-
-          <ToastContainer
-            position="top-right"
-            autoClose={3000}
-          />
 
         </div>
       </div>
