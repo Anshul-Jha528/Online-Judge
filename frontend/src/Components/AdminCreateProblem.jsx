@@ -1,8 +1,10 @@
 import { useState } from "react";
 import { toast } from "react-toastify";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 const AdminCreateProblem = () => {
+    const navigate = useNavigate();
     const [title, setTitle] = useState("");
     const [statement, setStatement] = useState("");
     const [diff, setDiff] = useState("");
@@ -52,7 +54,7 @@ const AdminCreateProblem = () => {
             memoryLimitMB: Number(memory),
             topics,
         };
-
+        try{
         const res = await axios.post(`${import.meta.env.VITE_BACKEND_URI}/v1/admin/createProblem`,
         problemData,
         {
@@ -62,9 +64,18 @@ const AdminCreateProblem = () => {
         }
         );
         if(res.status === 201){
-            toast.success("Problem created successfully");
+            toast.success("Problem created successfully",{
+                onClose:()=>{
+                    navigate(`/admin/addTestCases/${res.data.problemID}`, {replace: true});
+                }
+            }
+            );
         }
         console.log(res.data);
+    } catch(err){
+        console.log(err.message);
+        toast.error("Could not create problem", {autoClose:3000});
+    }
     };
 
     return (
@@ -210,13 +221,14 @@ const AdminCreateProblem = () => {
                     </div>
 
                     {/* Submit */}
-                    <div className="flex justify-center">
+                    <div className="flex justify-between">
                         <button
                             type="submit"
                             className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-2 rounded"
                         >
                             Create Problem
                         </button>
+                        
                     </div>
                 </form>
             </div>

@@ -41,6 +41,11 @@ const ShowAllProblems = () => {
 
     return (
         <div className="w-full min-h-screen bg-slate-900 px-5 py-5 text-gray-200">
+
+            <div className="w-fill text-gray-50 text-center text-2xl my-5">
+                Welcome {localStorage.getItem("username")}!
+            </div>
+
             <table className="w-full border border-cyan-700 rounded-lg overflow-hidden">
 
                 <thead className="bg-slate-800">

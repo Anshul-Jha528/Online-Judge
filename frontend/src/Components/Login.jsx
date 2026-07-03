@@ -28,11 +28,12 @@ const Login = () => {
     return Object.keys(newErrors).length === 0;
   };
 
-  const setAuthToken = async (token, name, userID) => {
+  const setAuthToken = async (token, name, userID, isAdmin) => {
 
     localStorage.setItem("token", token);
     localStorage.setItem("username", name);
     localStorage.setItem("userID", userID);
+    localStorage.setItem("isAdmin", isAdmin);
   }
 
   const handleSubmit = async (e) => {
@@ -42,7 +43,7 @@ const Login = () => {
         const res = await axios.post(`${import.meta.env.VITE_BACKEND_URI}/v1/auth/login`,{
           email,password
         })
-        setAuthToken(res.data.token, res.data.username, res.data.userID);
+        setAuthToken(res.data.token, res.data.username, res.data.userID, res.data.isAdmin);
         console.log(res.data);
         toast.success("Login successful",{
           onClose:()=>navigate("/Dashboard", {replace:true}),

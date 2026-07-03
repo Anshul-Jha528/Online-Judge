@@ -169,6 +169,7 @@ const AdminUpdateProblem = () => {
 
     }
 
+
     return (
         <div className="w-full flex-col font-serif p-5 text-[16px]">
             <div className="text-yellow-300 border border-yellow-500 flex justify-center text-[20px] py-2">
@@ -326,12 +327,7 @@ const AdminUpdateProblem = () => {
                         >
                             Delete Problem
                         </button>
-                        <button
-                            type="button"
-                            className="bg-green-600 hover:bg-green-700 text-white px-8 py-2 rounded"
-                        >
-                            Add Test Cases
-                        </button>
+                        
                     </div>
                 </form>
             </div>

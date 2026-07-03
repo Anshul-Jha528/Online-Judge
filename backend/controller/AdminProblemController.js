@@ -6,17 +6,17 @@ const Problems = require('../model/Problems');
 
 const createProblem = async (req, res) => {
     try {
-        const {title, statement, difficulty, topics, timeLimitMs, memoryLimitMB} = req.body;
-        if(!title || !statement || !difficulty || !topics || !timeLimitMs || !memoryLimitMB){
-            return res.status(400).json({message: "All fields are required"});
+        const { title, statement, difficulty, topics, timeLimitMs, memoryLimitMB } = req.body;
+        if (!title || !statement || !difficulty || !topics || !timeLimitMs || !memoryLimitMB) {
+            return res.status(400).json({ message: "All fields are required" });
         }
-        const existingProblem = await Problem.findOne({title: title});
-        if(existingProblem){
-            return res.status(400).json({message: "Problem already exists"});
+        const existingProblem = await Problem.findOne({ title: title });
+        if (existingProblem) {
+            return res.status(400).json({ message: "Problem already exists" });
         }
         const problemID = await getProblemId();
         const authorID = req.user.userID;
-        const user = await User.findOne({userID: authorID}).select("fullName");
+        const user = await User.findOne({ userID: authorID }).select("fullName");
         const authorName = user.fullName;
         const newProblem = new Problem({
             title: title,
@@ -30,17 +30,17 @@ const createProblem = async (req, res) => {
             authorName: authorName
         });
         await newProblem.save();
-        res.status(201).json({message: "Problem created successfully", problem: newProblem});
+        res.status(201).json({ message: "Problem created successfully", problem: newProblem });
     } catch (error) {
         console.error("Error while creating problem ", error);
-        res.status(500).json({message: "Error creating problem"});
+        res.status(500).json({ message: "Error creating problem" });
     }
 }
 
 const getProblemId = async () => {
     const counter = await Counter.findOneAndUpdate(
-        {name: "problem"},
-        {$inc: {sequence_value: 1}},
+        { name: "problem" },
+        { $inc: { sequence_value: 1 } },
         {
             new: true,
             upsert: true,
@@ -52,17 +52,17 @@ const getProblemId = async () => {
 
 const updateProblem = async (req, res) => {
     try {
-        const {problemID, title, statement, difficulty, topics, timeLimitMs, memoryLimitMB} = req.body;
-        if(!problemID || !title || !statement || !difficulty || !topics || !timeLimitMs || !memoryLimitMB){
-            return res.status(400).json({message: "All fields are required"});
+        const { problemID, title, statement, difficulty, topics, timeLimitMs, memoryLimitMB } = req.body;
+        if (!problemID || !title || !statement || !difficulty || !topics || !timeLimitMs || !memoryLimitMB) {
+            return res.status(400).json({ message: "All fields are required" });
         }
-        const existingProblem = await Problem.findOne({problemID: problemID});
-        if(!existingProblem){
-            return res.status(400).json({message: "Problem not found"});
+        const existingProblem = await Problem.findOne({ problemID: problemID });
+        if (!existingProblem) {
+            return res.status(400).json({ message: "Problem not found" });
         }
-        const existingTitle = await Problem.findOne({title: title});
-        if(existingTitle && existingTitle.problemID !== problemID){
-            return res.status(400).json({message: "Problem title already exists"});
+        const existingTitle = await Problem.findOne({ title: title });
+        if (existingTitle && existingTitle.problemID !== problemID) {
+            return res.status(400).json({ message: "Problem title already exists" });
         }
         existingProblem.title = title;
         existingProblem.statement = statement;
@@ -71,106 +71,124 @@ const updateProblem = async (req, res) => {
         existingProblem.timeLimitMs = timeLimitMs;
         existingProblem.memoryLimitMB = memoryLimitMB;
         await existingProblem.save();
-        res.status(200).json({message: "Problem updated successfully", problem: existingProblem});
+        res.status(200).json({ message: "Problem updated successfully", problem: existingProblem });
     } catch (error) {
         console.error("Error while updating problem ", error);
-        res.status(500).json({message: "Internal server error"});
+        res.status(500).json({ message: "Internal server error" });
     }
 }
 
-const deleteProblem = async (req, res) =>{
+const deleteProblem = async (req, res) => {
     try {
-        const {problemID} = req.params;
-        if(!problemID){
-            return res.status(400).json({message: "Problem ID is required"});
+        const { problemID } = req.params;
+        if (!problemID) {
+            return res.status(400).json({ message: "Problem ID is required" });
         }
-        const existingProblem = await Problem.findOne({problemID: problemID});
-        if(!existingProblem){
-            return res.status(400).json({message: "Problem not found"});
+        const existingProblem = await Problem.findOne({ problemID: problemID });
+        if (!existingProblem) {
+            return res.status(400).json({ message: "Problem not found" });
         }
-        await Problem.deleteOne({problemID: problemID});
-        await TestCase.deleteMany({problemID: problemID});
-        res.status(200).json({message: "Problem deleted successfully"});
+        await Problem.deleteOne({ problemID: problemID });
+        await TestCase.deleteMany({ problemID: problemID });
+        res.status(200).json({ message: "Problem deleted successfully" });
     } catch (error) {
         console.error("Error while deleting problem ", error);
-        res.status(500).json({message: "Internal server error"});
+        res.status(500).json({ message: "Internal server error" });
     }
 }
 
-const getAllProblems = async (req, res) =>{
-    try{
-        const userID = req.params.userID;
-        const problems = await Problems.find({authorID:userID});
-        if(problems.length === 0){
-            return res.status(404).json({message: "No problems found"});
-        }
-        res.status(200).json({message: "Problems found", problems: problems});
-    }catch(error){
-        console.error("Error while getting problems ", error);
-        res.status(500).json({message: "Error fetching problems"});
-    }
-}
-
-const getProblem = async (req, res) =>{
+const getAllProblems = async (req, res) => {
     try {
-        const {problemID} = req.params;
-        if(!problemID){
-            return res.status(400).json({message: "Problem ID is required"});
+        const userID = req.params.userID;
+        const problems = await Problems.find({ authorID: userID });
+        if (problems.length === 0) {
+            return res.status(404).json({ message: "No problems found" });
         }
-        const existingProblem = await Problem.findOne({problemID: problemID});
-        if(!existingProblem){
-            return res.status(400).json({message: "Problem not found"});
+        res.status(200).json({ message: "Problems found", problems: problems });
+    } catch (error) {
+        console.error("Error while getting problems ", error);
+        res.status(500).json({ message: "Error fetching problems" });
+    }
+}
+
+const getProblem = async (req, res) => {
+    try {
+        const { problemID } = req.params;
+        if (!problemID) {
+            return res.status(400).json({ message: "Problem ID is required" });
         }
-        res.status(200).json({message: "Problem found", problem: existingProblem});
+        const existingProblem = await Problem.findOne({ problemID: problemID });
+        if (!existingProblem) {
+            return res.status(400).json({ message: "Problem not found" });
+        }
+        res.status(200).json({ message: "Problem found", problem: existingProblem });
     } catch (error) {
         console.error("Error while getting problem ", error);
-        res.status(500).json({message: "Internal server error"});
+        res.status(500).json({ message: "Internal server error" });
     }
 }
 
-const getTestCase = async (req, res) =>{
+const getTestCase = async (req, res) => {
     try {
-        const {problemID} = req.params;
+        const { problemID } = req.params;
+        if (!problemID) {
+            return res.status(400).json({ message: "Problem ID is required" });
+        }
+        const existingTestCase = await TestCase.find({ problemID: problemID });
+        if (existingTestCase.length === 0) {
+            return res.status(400).json({ message: "Test case not found" });
+        }
+        res.status(200).json({ message: "Test case found", testCases: existingTestCase });
+    } catch (error) {
+        console.error("Error while getting test case ", error);
+        res.status(500).json({ message: "Internal server error" });
+    }
+}
+
+const getAllTestCases = async (req, res) => {
+    try{
+        const problemID = req.params.problemID;
         if(!problemID){
-            return res.status(400).json({message: "Problem ID is required"});
+            return res.status(404).json({message:"Problem ID is required"});
         }
         const existingTestCase = await TestCase.find({problemID: problemID});
         if(existingTestCase.length === 0){
-            return res.status(400).json({message: "Test case not found"});
+            return res.status(404).json({message:"Test case not found"});
         }
-        res.status(200).json({message: "Test case found", testCases: existingTestCase});
-    } catch (error) {
-        console.error("Error while getting test case ", error);
-        res.status(500).json({message: "Internal server error"});
+        res.status(200).json({message:"Test cases found",testCases:existingTestCase});
+    }catch(error){
+        console.error("Error while getting test cases ",error);
+        res.status(500).json({message:"Internal server error"});
     }
 }
 
 const updateTestCase = async (req, res) => {
-    try{
-        const {testCaseID, input, expectedOutput, isHidden} = req.body;
-        if(!testCaseID || !input || !expectedOutput || !isHidden){
-            return res.status(400).json({message: "All fields are required"});
+    try {
+        const { testCaseID, input, expectedOutput, isHidden } = req.body;
+        if (!testCaseID || !expectedOutput) {
+            return res.status(400).json({ message: "All fields are required" });
         }
-        const existingTestCase = await TestCase.findOne({testCaseID: testCaseID});
-        if(!existingTestCase){
-            return res.status(400).json({message: "Test case not found"});
+        const existingTestCase = await TestCase.findOne({ testCaseID: testCaseID });
+        if (!existingTestCase) {
+            return res.status(400).json({ message: "Test case not found" });
         }
         existingTestCase.input = input;
         existingTestCase.expectedOutput = expectedOutput;
         existingTestCase.isHidden = isHidden;
         await existingTestCase.save();
-        res.status(200).json({message: "Test case updated successfully", testCase: existingTestCase});
+        res.status(200).json({ message: "Test case updated successfully", testCase: existingTestCase });
     } catch (error) {
         console.error("Error while updating test case ", error);
-        res.status(500).json({message: "Internal server error"});
+        res.status(500).json({ message: "Internal server error" });
     }
 }
 
 const createTestCase = async (req, res) => {
     try {
-        const {problemID, input, expectedOutput, isHidden} = req.body;
-        if(!problemID || !input || !expectedOutput || !isHidden){
-            return res.status(400).json({message: "All fields are required"});
+        const { problemID } = req.params;
+        const { input, expectedOutput, isHidden } = req.body;
+        if (!problemID || !expectedOutput) {
+            return res.status(400).json({ message: "All fields are required" });
         }
         const testCaseID = await getTestCaseId();
         const newTestCase = new TestCase({
@@ -181,17 +199,45 @@ const createTestCase = async (req, res) => {
             isHidden: isHidden
         });
         await newTestCase.save();
-        res.status(201).json({message: "Test case created successfully", testCase: newTestCase});
+        res.status(201).json({ message: "Test case created successfully", testCase: newTestCase });
     } catch (error) {
         console.error("Error while creating test case ", error);
-        res.status(500).json({message: "Internal server error"});
+        res.status(500).json({ message: "Internal server error" });
+    }
+}
+
+const createMultipleTestCases = async (req, res) => {
+    try {
+        console.log(req.body);
+        const { problemID } = req.params;
+        const { testCases } = req.body;
+        if (!problemID || !testCases) {
+            return res.status(400).json({ message: "All fields are required" });
+        }
+        const createdTestCases = [];
+        for (const testCase of testCases) {
+            const testCaseID = await getTestCaseId();
+            const newTestCase = new TestCase({
+                problemID: problemID,
+                testCaseID: testCaseID,
+                input: testCase.input,
+                expectedOutput: testCase.expectedOutput,
+                isHidden: testCase.isHidden
+            });
+            await newTestCase.save();
+            createdTestCases.push(newTestCase);
+        }
+        res.status(201).json({ message: "Test cases created successfully", testCases: createdTestCases });
+    } catch (error) {
+        console.error("Error while creating test cases ", error);
+        res.status(500).json({ message: "Internal server error" });
     }
 }
 
 const getTestCaseId = async () => {
     const counter = await Counter.findOneAndUpdate(
-        {name: "testcase"},
-        {$inc: {sequence_value: 1}},
+        { name: "testcase" },
+        { $inc: { sequence_value: 1 } },
         {
             new: true,
             upsert: true,
@@ -203,20 +249,20 @@ const getTestCaseId = async () => {
 
 const deleteTestCase = async (req, res) => {
     try {
-        const {testCaseID} = req.params;
-        if(!testCaseID){
-            return res.status(400).json({message: "Test case ID is required"});
+        const { testCaseID } = req.params;
+        if (!testCaseID) {
+            return res.status(400).json({ message: "Test case ID is required" });
         }
-        const existingTestCase = await TestCase.findOne({testCaseID: testCaseID});
-        if(!existingTestCase){
-            return res.status(400).json({message: "Test case not found"});
+        const existingTestCase = await TestCase.findOne({ testCaseID: testCaseID });
+        if (!existingTestCase) {
+            return res.status(400).json({ message: "Test case not found" });
         }
-        await TestCase.deleteOne({testCaseID: testCaseID});
-        res.status(200).json({message: "Test case deleted successfully"});
+        await TestCase.deleteOne({ testCaseID: testCaseID });
+        res.status(200).json({ message: "Test case deleted successfully" });
     } catch (error) {
         console.error("Error while deleting test case ", error);
-        res.status(500).json({message: "Internal server error"});
+        res.status(500).json({ message: "Internal server error" });
     }
 }
 
-module.exports = { createProblem, updateProblem, deleteProblem, getAllProblems, getProblem, getTestCase, updateTestCase, createTestCase, deleteTestCase };
+module.exports = { createProblem, updateProblem, deleteProblem, getAllProblems, getProblem, getAllTestCases, getTestCase, updateTestCase, createTestCase, deleteTestCase, createMultipleTestCases };

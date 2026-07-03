@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState,  } from "react";
 import axios from 'axios';
 import { useNavigate } from "react-router-dom";
 
@@ -13,24 +13,14 @@ const AdminProblems = () =>{
         navigate(`/admin/updateProblem/${id}`, {replace: false});
     }
 
+    const handleEditTest = (id) =>{
+        navigate(`/admin/editTestCases/${id}`, {replace: false});
+    }
+
 
     useEffect(() => {
         const getProblems = async () => {
             try {
-
-                // const temp = await axios.post(
-                //             `${import.meta.env.VITE_BACKEND_URI}/v1/auth/makeUserAdmin`,
-                //                 {
-                //                      userID: localStorage.getItem("userID"),
-                //                  },
-                //                  {
-                //                     headers: {
-                //                       Authorization: `Bearer ${localStorage.getItem("token")}`,
-                //                     },
-                //                 }
-                //                 );
-                //     console.log(temp);
-
                 const res = await axios.get(
                     `${import.meta.env.VITE_BACKEND_URI}/v1/admin/getAllProblems/${localStorage.getItem("userID")}`,
                     {
@@ -70,9 +60,10 @@ const AdminProblems = () =>{
                     <tr className="border-b border-cyan-700">
                         <th className="py-3 px-3 text-left w-[10%]">Problem ID</th>
                         <th className="py-3 px-3 text-left w-[35%]">Title</th>
-                        <th className="py-3 px-3 text-left w-[25%]">Topics</th>
-                        <th className="py-3 px-3 text-left w-[15%]">Difficulty</th>
+                        <th className="py-3 px-3 text-left w-[20%]">Topics</th>
+                        <th className="py-3 px-3 text-left w-[10%]">Difficulty</th>
                         <th className="py-3 px-3 text-center w-[15%]">Actions</th>
+                        <th className="py-3 px-3 text-center w-[15%]">Test Cases</th>
                     </tr>
                 </thead>
 
@@ -124,6 +115,14 @@ const AdminProblems = () =>{
                                     onClick={() => {handleUpdate(problem.problemID)}}
                                     >
                                         Update
+                                    </button>
+                                </td>
+                                <td className="px-3 py-3 text-center">
+                                    <button
+                                        className="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-lg transition cursor-pointer"
+                                    onClick={() => {handleEditTest(problem.problemID)}}
+                                    >
+                                        View/Edit
                                     </button>
                                 </td>
                             </tr>

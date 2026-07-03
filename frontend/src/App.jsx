@@ -9,7 +9,10 @@ import ShowAllProblems from './Components/ShowAllProblems'
 import Submissions from './Components/Submissions'
 import Leaderboard from './Components/Leaderboard'
 import Profile from './Components/Profile'
+import AddTestCase from './Components/AdminAddTestCase'
 import { ToastContainer } from 'react-toastify'
+import EditTestCases from './Components/AdminEditTestCases'
+import GetAdminRights from './Components/GetAdminRights'
 
 
 function App() {
@@ -31,6 +34,8 @@ function App() {
 
           <Route path="/profile" element={<Profile />} />
 
+          <Route path="/getAdminRights" element={<GetAdminRights />} />
+
           <Route path="/admin/createProblem" element={<AdminCreateProblem />} />
 
           <Route path="/admin/myProblems" element={<AdminProblems />} />
@@ -39,6 +44,10 @@ function App() {
             path="/admin/updateProblem/:problemID"
             element={<AdminUpdateProblem />}
           />
+
+          <Route path="/admin/addTestCases/:problemID" element={<AddTestCase />} />
+
+          <Route path="admin/editTestCases/:problemID" element={<EditTestCases/>} />
         </Route>
 
       </Routes>
