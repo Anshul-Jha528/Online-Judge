@@ -43,16 +43,15 @@ const Login = () => {
         const res = await axios.post(`${import.meta.env.VITE_BACKEND_URI}/v1/auth/login`,{
           email,password
         })
-        setAuthToken(res.data.token, res.data.username, res.data.userID, res.data.isAdmin);
-        console.log(res.data);
+        setAuthToken(res.data.token, res.data.username, res.data.userID,Boolean(res.data.isAdmin));
         toast.success("Login successful",{
           onClose:()=>navigate("/Dashboard", {replace:true}),
-          autoClose:3000
+          autoClose:2000
         })
       }
       catch(err){
-        console.log(err.message);
-        toast.error("Something went wrong")
+        console.log(err.response.data.message);
+        toast.error(err.response.data.message,{autoClose:2000});
       }
     }
   };

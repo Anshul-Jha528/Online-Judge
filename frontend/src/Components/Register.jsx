@@ -54,13 +54,13 @@ const Register = () => {
       console.log(res.data);
       toast.success("Registered successfully", {
         onClose:() => navigate("/login", {replace:true}),
-        autoClose:3000
+        autoClose:2000
       });
       }
       catch(err){
         console.log(err.message);
         toast.error("Something went wrong",{
-          autoClose:3000
+          autoClose:2000
         })
       }
     }

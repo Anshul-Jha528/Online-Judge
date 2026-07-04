@@ -24,6 +24,8 @@ const SidePanel = ({isOpen}) => {
 
     }
 
+    const isAdmin = (localStorage.getItem("isAdmin")=="true");
+
     const [adminPanel, setAdminPanel] = useState(false);
 
     if(!isOpen) return null;
@@ -42,7 +44,7 @@ const SidePanel = ({isOpen}) => {
             </NavLink>
 
             {
-                !localStorage.getItem("isAdmin") && (
+                !isAdmin && (
                     <NavLink to="/getAdminRights" className="flex px-[20px] py-[15px] cursor-pointer justify-start items-center hover:bg-red-600">
                         Get Admin Rights
                     </NavLink>
@@ -50,7 +52,7 @@ const SidePanel = ({isOpen}) => {
             }
 
             {
-                localStorage.getItem("isAdmin") && (
+                isAdmin && (
                     <div onClick={()=>setAdminPanel(!adminPanel)} className="flex px-[20px] py-[15px] cursor-pointer justify-between items-center hover:bg-red-600">
                         <span>Admin Panel</span>
                         <span>{adminPanel ? "▲" : "▼"}</span>
