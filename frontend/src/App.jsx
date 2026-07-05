@@ -13,7 +13,8 @@ import AddTestCase from './Components/AdminAddTestCase'
 import { ToastContainer } from 'react-toastify'
 import EditTestCases from './Components/AdminEditTestCases'
 import GetAdminRights from './Components/GetAdminRights'
-
+import Compiler from './Components/Compiler'
+import Problem from './Components/Problem'
 
 function App() {
 
@@ -23,6 +24,9 @@ function App() {
         <Route path="/" element={<Navigate to="/Login" replace />} />
         <Route path="/Login" element={<Login />} />
         <Route path="/Register" element={<Register />} />
+
+        <Route path="/compiler" element={<Compiler />} />
+        <Route path="/problem/:problemID" element={<Problem />} />
 
         <Route element={<Dashboard />}>
 
@@ -40,6 +44,8 @@ function App() {
 
           <Route path="/admin/myProblems" element={<AdminProblems />} />
 
+          <Route path="/compiler" element={<Compiler />} />
+
           <Route
             path="/admin/updateProblem/:problemID"
             element={<AdminUpdateProblem />}
@@ -49,6 +55,7 @@ function App() {
 
           <Route path="admin/editTestCases/:problemID" element={<EditTestCases/>} />
         </Route>
+
 
       </Routes>
 

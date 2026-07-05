@@ -1,9 +1,8 @@
 import { NavLink, useNavigate } from "react-router-dom";
-import Swal from "sweetalert2";
 
 const NavBar = ({sidePanelOpen, setSidePanel}) => {
-    const navigate = useNavigate();
     const username = localStorage.getItem("username");
+    const isAdmin = (localStorage.getItem("isAdmin")=="true")
 
     const handleSidePanel = () => {
         setSidePanel(!sidePanelOpen);
@@ -22,7 +21,8 @@ const NavBar = ({sidePanelOpen, setSidePanel}) => {
                     <NavLink to="/dashboard" className="h-full flex px-[20px] cursor-pointer justify-center items-center my-auto hover:bg-red-600">
                         Dashboard
                     </NavLink>
-                    <NavLink to="/profile" className="h-full flex px-[20px] cursor-pointer justify-center items-center my-auto hover:bg-red-600">
+                    <NavLink to="/profile" 
+                    className={`h-full flex px-[20px] cursor-pointer justify-center items-center my-auto hover:bg-red-600 ${isAdmin ? "outline outline-2 outline-offset-[-5px] outline-green-200 rounded-lg" : ""}`}>
                         {username}
                     </NavLink>
                 </div>

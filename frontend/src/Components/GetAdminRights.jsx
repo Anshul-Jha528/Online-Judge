@@ -30,7 +30,7 @@ const GetAdminRights = () => {
                     onClose: () => {
                         navigate("/admin/createProblem", { replace: true });
                     },
-                    autoClose: 3000,
+                    autoClose: 2000,
                 });
             }
 

@@ -1,0 +1,67 @@
+import { useState } from "react";
+import MonacoEditor from "./MonacoEditor";
+
+const Compiler = () => {
+
+    const [code, setCode] = useState("// Write your code here");
+    const [language, setLanguage] = useState("cpp");
+    const [input, setInput] = useState("");
+    const [output, setOutput] = useState("Your output will appear here...");
+
+    const handleRun = async () => {
+        
+        setOutput("Running...");
+
+    }
+
+    return (
+        <>
+            <div className="w-screen h-screen bg-slate-950 text-gray-50 flex flex-col">
+                <div className="flex flex-row justify-between px-5 bg-cyan-700 p-2">
+                    <h1 className="text-white text-2xl cursor-default font-medium ">Compiler</h1>
+                    <select onChange={(e)=>setLanguage(e.target.value)} className="bg-cyan-100 text-gray-950 border-0 rounded px-1 py-2 w-[10%]" value={language}>
+                        <option value="cpp">C++</option>
+                        <option value="java">Java</option>
+                        <option value="python">Python</option>
+                        <option value="js">JavaScript</option>
+                    </select>
+                </div>
+                <div className="flex flex-row overflow-hidden ">
+                    <div className="w-[65%] h-[92%] p-5">
+                        <MonacoEditor language={language} value={code} onChange={setCode} height={"full"} />
+                    </div>
+                    <div className="w-[35%] h-[100%] p-5 pb-12 flex-col flex justify-between">
+                        <div className="h-[35%]">
+                            <h1>Input</h1>
+                            <textarea className="w-full h-full bg-slate-800 text-gray-300 border-0 rounded-lg px-1 py-2"
+                            value={input}
+                            onChange={(e)=>setInput(e.target.value)}
+                            
+                            ></textarea>
+                        </div>
+
+                        <div className="h-[35%]">
+                            <h1>Output</h1>
+                            <textarea className="w-full h-full bg-slate-800 text-gray-300 border-0 rounded-lg px-1 py-2"
+                            value={output}
+                            disabled
+                            
+                            ></textarea>
+                        </div>
+
+                        <div 
+                        onClick={handleRun}
+                        className="w-full mt-5 bg-blue-500 h-[15%] cursor-pointer rounded-lg hover:bg-blue-600 text-white font-medium text-lg flex justify-center items-center" >
+                            Run Code
+                        </div>
+                            
+                    </div>
+                </div>
+            </div>
+        
+        </>
+    )
+
+}
+
+export default Compiler;

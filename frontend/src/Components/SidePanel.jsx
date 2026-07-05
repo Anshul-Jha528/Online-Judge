@@ -42,6 +42,9 @@ const SidePanel = ({isOpen}) => {
             <NavLink to="/leaderboard" className="flex px-[20px] py-[15px] cursor-pointer justify-start items-center hover:bg-red-600">
                 Leaderboard
             </NavLink>
+            <div onClick={()=>window.open("/compiler","_blank")} className="flex px-[20px] py-[15px] cursor-pointer justify-start items-center hover:bg-red-600">
+                Compiler
+            </div>
 
             {
                 !isAdmin && (

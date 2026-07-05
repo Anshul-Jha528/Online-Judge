@@ -15,6 +15,7 @@ const Profile = () => {
     const [newPassword, setNewPassword] = useState("");
     const [newPasswordConfirm, setNewPasswordConfirm] = useState("");
     const [currentPassword, setCurrentPassword] = useState("");
+    const [isAdmin, setIsAdmin] = useState(localStorage.getItem("isAdmin") == "true");
 
     useEffect(() => {
         const fetchUser = async () => {
@@ -191,6 +192,51 @@ const Profile = () => {
         
     }
 
+    const handleAdmin = async () =>{
+        Swal.fire({
+            title: "Admin Rights",
+            text: "Do you want to revoke your admin rights? You may get it back.",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#ef4444",
+            cancelButtonColor: "#00be4cff",
+            confirmButtonText: "Yes, Revoke Rights!",
+            cancelButtonText: "Cancel"
+        }).then(
+            async(result)=>{
+                if(result.isConfirmed){
+                    try{
+                    const res = await axios.patch(
+                        `${import.meta.env.VITE_BACKEND_URI}/v1/auth/removeUserAdmin/${localStorage.getItem("userID")}`,
+                        {
+                        },
+                        {
+                            headers: {
+                                Authorization: `Bearer ${localStorage.getItem("token")}`,
+                            },
+                        }
+                    );
+                    
+                    localStorage.setItem("isAdmin", "false");
+                    console.log(localStorage.getItem("isAdmin"));
+                    setIsAdmin(false);
+                    setUserData({
+                        ...userData,
+                        isAdmin: false
+                    });
+                    toast.success("Admin rights revoked successfully",{autoClose:2000,
+                        onClose:()=>{
+                            navigate("/");
+                        }
+                    });
+                }catch(err){
+                    console.log(err);
+                    toast.error(err.response?.data?.message || "Something went wrong", { autoClose: 2000 });
+                }
+            }
+    })
+    }
+
     return (
         <div className="w-full min-h-screen bg-slate-900 flex justify-center items-center px-5 py-10 text-gray-200">
             <div className="w-full max-w-2xl bg-slate-800 rounded-2xl shadow-xl border border-slate-700 p-8">
@@ -208,6 +254,13 @@ const Profile = () => {
                         User ID: {userData.userID}
                     </p>
                 </div>
+
+                { isAdmin &&
+                <div className="bg-green-600 w-fit mx-auto text-green-100 px-4 py-2 mt-6 rounded-lg hover:bg-green-700 text-center cursor-pointer"
+                    onClick={handleAdmin}>
+                    You are an admin
+                </div>
+                }
 
                 {/* Details */}
                 <div className="mt-10 space-y-6">

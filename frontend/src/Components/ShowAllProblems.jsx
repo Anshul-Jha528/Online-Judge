@@ -39,6 +39,10 @@ const ShowAllProblems = () => {
         );
     }
 
+    const handleSolve = (problemID) => {
+        window.open(`/problem/${problemID}`, '_blank')
+    }
+
     return (
         <div className="w-full min-h-screen bg-slate-900 px-5 py-5 text-gray-200">
 
@@ -102,6 +106,7 @@ const ShowAllProblems = () => {
 
                                 <td className="px-3 py-3 text-center">
                                     <button
+                                        onClick={() => handleSolve(problem.problemID)}
                                         className="bg-cyan-600 hover:bg-cyan-700 px-4 py-2 rounded-lg transition cursor-pointer"
                                     >
                                         Solve →
