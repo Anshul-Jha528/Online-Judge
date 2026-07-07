@@ -2,6 +2,8 @@ import axios from "axios";
 import { useEffect, useState } from "react";
 
 const ShowAllProblems = () => {
+    document.title = "Dashboard";
+
     const [problems, setProblems] = useState([]);
     const [loading, setLoading] = useState(true);
 

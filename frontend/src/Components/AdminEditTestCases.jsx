@@ -5,6 +5,8 @@ import { toast } from "react-toastify";
 import Swal from "sweetalert2";
 
 const EditTestCases = () => {
+    document.title = "Admin Panel";
+
     const problemID = useParams().problemID;
 
     const [testCases, setTestCases] = useState([]);

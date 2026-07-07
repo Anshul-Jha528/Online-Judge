@@ -6,6 +6,8 @@ import { toast, ToastContainer } from "react-toastify";
 
 
 const Register = () => {
+    document.title = "Register";
+
   const navigate = useNavigate();
   useEffect(() => {
     if (localStorage.getItem("token")) {

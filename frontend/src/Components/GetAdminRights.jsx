@@ -5,7 +5,7 @@ import Swal from "sweetalert2";
 
 
 const GetAdminRights = () => {
-
+    document.title = "Admin Panel";
 
     const navigate = useNavigate();
 

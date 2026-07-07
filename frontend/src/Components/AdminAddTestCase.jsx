@@ -5,6 +5,7 @@ import { toast } from "react-toastify";
 import Swal from "sweetalert2";
 
 const addTestCase = () => {
+    document.title = "Admin Panel";
 
     const navigate = useNavigate();
 

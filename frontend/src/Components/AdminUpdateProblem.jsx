@@ -5,6 +5,8 @@ import { useNavigate, useParams } from "react-router-dom";
 import Swal from "sweetalert2";
 
 const AdminUpdateProblem = () => {
+    document.title = "Admin Panel";
+
     const problemID = useParams().problemID;
     console.log(useParams());
     const [title, setTitle] = useState("");

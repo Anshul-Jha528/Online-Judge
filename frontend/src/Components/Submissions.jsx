@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import axios from 'axios';
 const Submissions = () =>{
+    document.title = "Submissions";
 
     const [submissions, setSubmissions] = useState([]);
 

@@ -4,6 +4,8 @@ import axios from "axios";
 import { ToastContainer, toast } from "react-toastify";
 
 const Login = () => {  
+    document.title = "Login";
+
   const navigate = useNavigate();
   useEffect(() => {
     if (localStorage.getItem("token")) {

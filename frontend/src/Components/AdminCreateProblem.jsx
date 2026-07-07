@@ -4,6 +4,8 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
 const AdminCreateProblem = () => {
+    document.title = "Admin Panel";
+
     const navigate = useNavigate();
     const [title, setTitle] = useState("");
     const [statement, setStatement] = useState("");

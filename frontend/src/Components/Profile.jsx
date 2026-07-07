@@ -5,6 +5,7 @@ import { toast } from "react-toastify";
 import Swal from "sweetalert2";
 
 const Profile = () => {
+    document.title = "Profile";
 
     const navigate = useNavigate();
 

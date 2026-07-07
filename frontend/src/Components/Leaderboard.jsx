@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import axios from 'axios';
 
 const Leaderboard = () => {
+    document.title = "Leaderboard";
 
     const [leaderboard, setLeaderboad] = useState([]);
 
@@ -53,7 +54,7 @@ const Leaderboard = () => {
                                 className="border-b border-cyan-700 hover:bg-slate-800 transition"
                             >
                                 <td className="px-3 py-3">
-                                    {index}
+                                    {index+1}
                                 </td>
 
                                 <td className="px-3 py-3 font-semibold">

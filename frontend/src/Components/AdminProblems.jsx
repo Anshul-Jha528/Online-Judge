@@ -5,6 +5,8 @@ import { useNavigate } from "react-router-dom";
 
 
 const AdminProblems = () =>{
+    document.title = "Admin Panel";
+
     const [problems, setProblems] = useState([]);
     const [loading, setLoading] = useState(true);
     const navigate = useNavigate();
