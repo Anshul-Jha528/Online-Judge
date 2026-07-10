@@ -6,7 +6,7 @@ const executeJavascript = async (filePath, inputFilePath) => {
     const jobID = path.basename(filePath).split('.')[0];
 
     return new Promise((resolve, reject)=>{
-        const command = `node ${filePath} < ${inputFilePath}`;
+        const command = `node "${filePath}" < "${inputFilePath}"`;
         console.log(command);
         exec(
             command,

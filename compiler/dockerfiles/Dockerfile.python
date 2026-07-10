@@ -1,0 +1,14 @@
+FROM --platform=linux/amd64 python:3.11-alpine
+
+WORKDIR /app
+
+# Install interpreter shell utilities
+RUN apk update && apk add --no-cache \
+    bash
+
+# Create directories if they don't exist
+RUN mkdir -p codes inputs outputs
+
+# Run as a non-root user for security sandbox execution
+RUN adduser -D -u 1001 judgeuser
+USER judgeuser
