@@ -1,13 +1,5 @@
-import Editor, { loader } from "@monaco-editor/react";
-import { useEffect } from "react";
-
-
+import Editor from "@monaco-editor/react";
 const MonacoEditor = ({ code, setCode, language, height }) => {
-  useEffect(() => {
-    loader.init().then((monaco) => {
-      monaco.editor.defineTheme("dracula", monacoThemes);
-    });
-  }, []);
 
   const options = {
     minimap: { enabled: false },

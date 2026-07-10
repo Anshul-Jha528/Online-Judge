@@ -38,7 +38,7 @@ const getTestCases = async (req, res) =>{
         if(!problemID){
             return res.status(400).json({message: "Problem ID is required"});
         }
-        const testCases = await TestCase.find({problemID: problemID, isHidden: false}).select("input expectedOutput");
+        const testCases = (await TestCase.find({problemID: problemID, isHidden: false}).select("input expectedOutput"));
         if(testCases.length === 0){
             return res.status(400).json({message: "Test cases not found"});
         }

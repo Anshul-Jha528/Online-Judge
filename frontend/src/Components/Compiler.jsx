@@ -28,7 +28,7 @@ int main() {
         
         setOutput("Running...");
         try{
-            console.log(code);
+            // console.log(code);
             const res = await axios.post(
                 `${import.meta.env.VITE_BACKEND_URI}/v1/compile/run`,
                 {

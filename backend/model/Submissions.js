@@ -21,6 +21,11 @@ const SubmissionsSchema = new mongoose.Schema({
         required: true,
         trim: true
     },
+    userID: {
+        type: String,
+        required: true,
+        trim: true
+    },
     submissionTime: {
         type: Date,
         default: Date.now,

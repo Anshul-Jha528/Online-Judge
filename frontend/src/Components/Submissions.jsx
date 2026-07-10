@@ -52,35 +52,33 @@ const Submissions = () =>{
                                 key={index}
                                 className="border-b border-cyan-700 hover:bg-slate-800 transition"
                             >
-                                <td className="px-3 py-3">
-                                    {index}
-                                </td>
+                                
 
-                                <td className="px-3 py-3 font-semibold">
+                                <td className="px-3 py-3 w-[10%] font-semibold">
                                     {submission.problemID}
                                 </td>
 
-                                <td className="px-3 py-3">
-                                    <span
-                                        className={`px-3 py-1 text-sm font-medium `}
-                                    >
+                                <td className="px-3 py-3 w-[35%]">
+                                    {/* <span
+                                        className={`px-3 py-1 text-start text-sm font-medium `}
+                                    > */}
                                         {submission.problemTitle}
-                                    </span>
+                                    {/* </span> */}
                                 </td>
 
-                                <td className="px-3 py-3">
-                                    <span
+                                <td className="px-3 py-3 text-start ps-5 w-[15%]">
+                                    {/* <span
                                         className={`px-3 py-1 text-sm font-medium `}
-                                    >
+                                    > */}
                                         {submission.language}
-                                    </span>
+                                    {/* </span> */}
                                 </td>
 
-                                <td className="px-3 py-3 text-center text-cyan-400 font-medium text-sm">
+                                <td className="px-3 py-3 text-start w-[10%] text-cyan-400 font-medium text-sm">
                                     {submission.verdict}
                                 </td>
 
-                                <td className="px-3 py-3 text-center text-cyan-400 font-medium text-sm">
+                                <td className="px-3 py-3 text-center w-[10%] text-cyan-400 font-medium text-sm">
                                     {submission.submissionID}
                                 </td>
 
