@@ -16,6 +16,10 @@ const AdminUpdateProblem = () => {
     const [memory, setMemory] = useState("");
     const [topics, setTopics] = useState([]);
     const [topicInput, setTopicInput] = useState("");
+    const [submitText, setSubmitText] = useState("Update Problem");
+    const [scoreVisible, setScoreVisible] = useState(false);
+    const [expertReport, setExpertReport] = useState("");
+    const [verified, setVerified] = useState(false);
 
     const navigate = useNavigate();
 
@@ -79,7 +83,53 @@ const AdminUpdateProblem = () => {
         setTopics(topics.filter((t) => t !== topic));
     };
 
+    const getReport = async () => {
+        if(!statement || !title || !diff || !time || !memory || !topics.length){
+            toast.warning("Please fill all the fields", {autoClose:3000});
+            return;
+        }
+        toast.info("Getting report...", {autoClose: 2000});
+        try{
+            const res = await axios.post(
+                `${import.meta.env.VITE_BACKEND_URI}/v1/ai/verifyProblem`,
+                    {
+                        problem: statement,
+                        title,
+                        difficulty: diff,
+                        timeLimitMs: Number(time),
+                        memoryLimitMB: Number(memory),
+                        topics,
+                    },
+                    {
+                        headers:{
+                            Authorization: `Bearer ${localStorage.getItem("token")}`
+                        }
+                    }
+                );
+                if(res.data.score.split(" ")[0]>=80){
+                    toast.success("Problem is good to go!", {autoClose:3000});
+                    setExpertReport("Problem qualified with score of "+res.data.score);
+                    setVerified(true);
+                    setSubmitText("Update Problem");
+    
+                } else {
+                    toast.warning("Problem did not meet the criteria!", {autoClose:3000});
+                    setExpertReport("Score : "+res.data.score);
+                }
+                setScoreVisible(true);
+            } catch(err){
+                console.log(err.response?.data?.message);
+                toast.error("Could not get report", {autoClose:3000});
+        }
+    }
+    
+
     const updateProblem = async () => {
+
+        if(!verified){
+            toast.warning("Please get a report first", {autoClose:3000});
+            return;
+        }
 
         toast.info("Updating problem...", {
             autoClose: 2000,
@@ -173,7 +223,7 @@ const AdminUpdateProblem = () => {
 
 
     return (
-        <div className="w-full flex-col font-serif p-5 text-[16px]">
+        <div className="w-full bg-slate-900 flex-col font-serif p-5 text-[16px]">
             <div className="text-yellow-300 border border-yellow-500 flex justify-center text-[20px] py-2">
                 Please enter updated problem details
             </div>
@@ -255,9 +305,11 @@ const AdminUpdateProblem = () => {
                             <textarea
                                 placeholder="Given an array of integers..."
                                 value={statement}
-                                onChange={(e) =>
-                                    setStatement(e.target.value)
-                                }
+                                onChange={(e) =>{
+                                    setStatement(e.target.value);
+                                    setVerified(false);
+                                    setSubmitText("Verify Problem");
+                                }}
                                 className="flex-1 h-56 bg-cyan-50 text-gray-900 border-2 border-cyan-600 rounded px-3 py-2 placeholder:text-gray-600"
                             />
                         </div>
@@ -314,13 +366,23 @@ const AdminUpdateProblem = () => {
                         </div>
                     </div>
 
+                    {
+                        scoreVisible && (
+                    <div className = "w-full text-start mx-10 my-5 p-4 rounded-md border border-2 border-cyan-500 bg-green-200 h-auto text-black font-semibold">
+                        {expertReport}
+                        
+                    </div>
+                        )
+                    }
+
                     {/* Submit */}
                     <div className="flex justify-between gap-8">
                         <button
-                            type="submit"
+                            type="button"
+                            onClick={verified?updateProblem:getReport}
                             className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-2 rounded"
                         >
-                            Update Problem
+                            {submitText}
                         </button>
                         <button
                             type="button"

@@ -3,6 +3,7 @@ const TestCase = require('../model/TestCases');
 const Counter = require('../model/Counter');
 const User = require('../model/Users');
 const Problems = require('../model/Problems');
+const {verifyTestCase} = require('./aiController'); 
 
 const createProblem = async (req, res) => {
     try {
@@ -164,6 +165,7 @@ const getAllTestCases = async (req, res) => {
 
 const updateTestCase = async (req, res) => {
     try {
+        // console.log(req.body);
         const { testCaseID, input, expectedOutput, isHidden } = req.body;
         if (!testCaseID || !expectedOutput) {
             return res.status(400).json({ message: "All fields are required" });
@@ -171,6 +173,14 @@ const updateTestCase = async (req, res) => {
         const existingTestCase = await TestCase.findOne({ testCaseID: testCaseID });
         if (!existingTestCase) {
             return res.status(400).json({ message: "Test case not found" });
+        }
+        const isValid = await verifyTestCase(existingTestCase.problemID, JSON.stringify({
+            input: input,
+            expectedOutput: expectedOutput,
+        }));
+        console.log(isValid);
+        if(!(isValid==='1')){
+            return res.status(400).json({ message: isValid });
         }
         existingTestCase.input = input;
         existingTestCase.expectedOutput = expectedOutput;
@@ -189,6 +199,13 @@ const createTestCase = async (req, res) => {
         const { input, expectedOutput, isHidden } = req.body;
         if (!problemID || !expectedOutput) {
             return res.status(400).json({ message: "All fields are required" });
+        }
+        const isValid = await verifyTestCase(problemID, JSON.stringify({
+            input: input,
+            expectedOutput: expectedOutput,
+        }));
+        if(!(isValid==='1')){
+            return res.status(400).json({ message: isValid });
         }
         const testCaseID = await getTestCaseId();
         const newTestCase = new TestCase({
@@ -213,6 +230,13 @@ const createMultipleTestCases = async (req, res) => {
         const { testCases } = req.body;
         if (!problemID || !testCases) {
             return res.status(400).json({ message: "All fields are required" });
+        }
+        const isValid = await verifyTestCase(problemID, JSON.stringify({
+            input: testCases.map(testCase => testCase.input),
+            expectedOutput: testCases.map(testCase => testCase.expectedOutput),
+        }));
+        if(!(isValid==='1')){
+            return res.status(400).json({ message: isValid });
         }
         const createdTestCases = [];
         for (const testCase of testCases) {

@@ -107,6 +107,7 @@ const EditTestCases = () => {
 
     const save = async (index) => {
         if (!validate(index)) return;
+        // console.log(testCases[index].testCaseID+" 1");
 
         try {
             console.log(problemID);
@@ -131,8 +132,9 @@ const EditTestCases = () => {
                 setTestCases(updated);
             }
         } catch (err) {
-            console.log(err.message);
-            toast.error("Failed to save test case");
+            console.log(err);
+            const message = err.response?.data?.message || "Failed to save test case";
+            toast.error(message,{autoClose: 3000});
         }
     };
 
@@ -161,8 +163,10 @@ const EditTestCases = () => {
                 setTestCases(updated);
             }
         } catch (err) {
-            console.log(err.message);
-            toast.error("Failed to update test case");
+            console.log(err.response?.data?.message);
+            const message = err.response?.data?.message;
+
+            toast.error(message,{autoClose: 3000});
         }
     };
 

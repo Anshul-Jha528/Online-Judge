@@ -9,16 +9,31 @@ const Problem = () => {
         document.title = "Problem";
     }, []);
 
+    const javaSample = `import java.util.*;
+import java.io.*;
+class Main {
+    public static void main(String[] args) throws IOException {
+        System.out.println("Hello, World!");
+    }
+}`;
+    const cppSample = `#include <iostream>
+using namespace std;
+int main() {
+    cout << "Hello, World!" << endl;
+    return 0;
+}`;
+    const pythonSample = `print("Hello, World!")`;
+    const jsSample = `console.log("Hello, World!");`;
+
     const { problemID } = useParams();
     const [problemData, setProblemData] = useState(null);
     const [testCases, setTestCases] = useState([]);
     const [language, setLanguage] = useState("java");
-    const [code, setCode] = useState("// Write your code here");
+    const [code, setCode] = useState(javaSample);
     const [input, setInput] = useState("");
     const [output, setOutput] = useState("Your output will appear here...");
     const [verdict, setVerdict] = useState("Submit code to see verdict...");
     const [isEditing, setEditing] = useState(true);
-    const [textBoxText, setText] = useState("");
     const [type, setType] = useState("input");
     const [runEnabled, setRunEnabled] = useState(true);
     const [submitEnabled, setSubmitEnabled] = useState(true);
@@ -41,15 +56,6 @@ const Problem = () => {
         }
     };
 
-    useEffect(() => {
-        if (type === "input") {
-            setText(input);
-        } else if (type === "output") {
-            setText(output);
-        } else if (type === "verdict") {
-            setText(verdict);
-        }
-    }, [type, input, output, verdict]);
 
     useEffect(() => {
         const fetchProblemData = async () => {
@@ -97,7 +103,6 @@ const Problem = () => {
 
     const handleRun = async () => {
         setOutput("Running...");
-        setText("Running...");
         setRunEnabled(false);
         
 
@@ -131,7 +136,6 @@ const Problem = () => {
     const handleSubmit = async () => {
         setSubmitEnabled(false);
         setVerdict("Submitting...");
-        setText("Submitting...");
         
 
         try {
@@ -162,7 +166,16 @@ const Problem = () => {
             <div className="flex flex-row justify-between px-5 bg-cyan-700 p-2">
                 <h1 className="text-white text-2xl cursor-default font-medium">Problem</h1>
                 <select 
-                    onChange={(e) => setLanguage(e.target.value)} 
+                    onChange={(e) => {
+                        const newLang = e.target.value;
+                        setLanguage(newLang);
+                        if (code === javaSample || code === cppSample || code === pythonSample || code === jsSample) {
+                            if (newLang === "cpp") setCode(cppSample);
+                            else if (newLang === "java") setCode(javaSample);
+                            else if (newLang === "python") setCode(pythonSample);
+                            else if (newLang === "javascript") setCode(jsSample);
+                        }
+                    }} 
                     className="bg-cyan-100 text-gray-950 border-0 rounded px-1 py-2 w-[10%]" 
                     value={language}
                 >
@@ -189,6 +202,16 @@ const Problem = () => {
                         </button>
                         <button
                             className={`flex-1 py-3 text-center font-medium text-base border-b-2 transition-colors ${
+                                activeTab === "submissions"
+                                    ? "text-green-200 border-green-200 bg-gray-900/80"
+                                    : "text-gray-400 border-transparent hover:text-gray-200 hover:bg-gray-900/30"
+                            }`}
+                            onClick={() => setActiveTab("submissions")}
+                        >
+                            Submissions
+                        </button>
+                        <button
+                            className={`flex-1 py-3 text-center font-medium text-base border-b-2 transition-colors ${
                                 activeTab === "ai"
                                     ? "text-cyan-400 border-cyan-400 bg-gray-900/80"
                                     : "text-gray-400 border-transparent hover:text-gray-200 hover:bg-gray-900/30"
@@ -204,7 +227,7 @@ const Problem = () => {
                         {activeTab === "problem" ? (
                             <div className="flex-1 p-5 overflow-y-auto" style={{ scrollbarWidth: "none" }}>
                                 <h1 className="text-yellow-200 text-2xl cursor-default font-medium">{problemData?.title}</h1>
-                                <p className="text-white mt-2 text-base">{problemData?.statement}</p>
+                                <p className="text-white mt-2 text-base whitespace-pre-wrap">{problemData?.statement}</p>
 
                                 {testCases.map((testCase, index) => (
                                     <div key={index}>
@@ -215,12 +238,17 @@ const Problem = () => {
                                         <p className="text-gray-100 p-1 bg-slate-800 whitespace-pre-wrap">{testCase.expectedOutput}</p>
                                     </div>
                                 ))}
-                                <h2 className="text-white mt-5 text-lg font-medium">Constraints</h2>
-                                <p className="text-white mt-2 text-base">Time limit: {problemData?.timeLimitMs}ms</p>
+                                <p className="text-white mt-5 text-base">Time limit: {problemData?.timeLimitMs}ms</p>
                                 <p className="text-white mt-2 text-base">Memory limit: {problemData?.memoryLimitMB}MB</p>
                                 <h2 className="text-white mt-5 text-base font-medium">Author: {problemData?.authorName}</h2>
                             </div>
-                        ) : (
+                        ) : (null)}
+                       {activeTab==="submissions"?(
+                            <div className="flex-1 p-5 overflow-y-auto" style={{ scrollbarWidth: "none" }}>
+                                <Submissions problemID={problemID} setCode={setCode} setLanguage={setLanguage} />
+                            </div>
+                       ) : (null)}
+                       {activeTab==="ai"? (
                             <div className="flex-1 p-5 overflow-hidden">
                                 <AIChatBot
                                     problemID={problemID}
@@ -234,7 +262,7 @@ const Problem = () => {
                                     setLoading={setAiLoading}
                                 />
                             </div>
-                        )}
+                        ):(null)}
                     </div>
                 </div>
 
@@ -299,10 +327,9 @@ const Problem = () => {
 
                     <textarea
                         className="h-[10rem] min-h-[10rem] mb-10 text-gray-50 bg-slate-800 mx-5 my-1 rounded-md p-3"
-                        value={textBoxText}
+                        value={type === "input" ? input : type === "output" ? output : verdict}
                         placeholder="Input sample test cases"
                         onChange={(e) => {
-                            setText(e.target.value);
                             if (type === "input") setInput(e.target.value);
                         }}
                         disabled={!isEditing}
@@ -315,5 +342,140 @@ const Problem = () => {
         </div>
     );
 };
+
+const Submissions = ({setCode, setLanguage, problemID}) => {
+    const [mySubmissions, setMySubmissions] = useState([]);
+    const [submissionsLoading, setSubmissionsLoading] = useState(true);
+    const [submissionsError, setSubmissionsError] = useState(false);
+
+    useEffect(() => {
+        const fetchSubmissions = async () => {
+            Promise.resolve().then(() => {
+                setSubmissionsLoading(true);
+                setSubmissionsError(false);
+            });
+            try {
+                const res = await axios.get(`${import.meta.env.VITE_BACKEND_URI}/v1/user/getMySubmissions/${localStorage.getItem("userID")}`,
+                    {
+                        headers: {
+                            Authorization: `Bearer ${localStorage.getItem("token")}`,
+                        },
+                    });
+                setMySubmissions(res.data.submissions
+                    .filter(
+                    (sub) => sub.problemID === problemID
+                )
+                );
+            } catch (err) {
+                console.error(err.message);
+                setSubmissionsError(true);
+            } finally {
+                setSubmissionsLoading(false);
+            }
+        };
+        fetchSubmissions();
+    }, [problemID, setMySubmissions, setSubmissionsLoading, setSubmissionsError]);
+
+    return (
+        <div className="w-full bg-slate-900 text-gray-200">
+
+            <table className="w-full border border-cyan-700 rounded-lg overflow-hidden">
+
+                <thead className="bg-slate-800">
+                    <tr className="border-b border-cyan-700">
+                        <th className="py-3 px-3 text-center w-[15%]">Submission ID</th>
+                        <th className="py-3 px-3 text-left w-[25%]">Language</th>
+                        <th className="py-3 px-3 text-left w-[40%]">Verdict</th>
+                        <th className="py-3 px-3 text-left w-[20%]">Code</th>
+                        
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {submissionsLoading ? (
+                        <tr>
+                            <td
+                                colSpan="4"
+                                className="text-center py-8 text-cyan-400"
+                            >
+                                Loading submissions...
+                            </td>
+                        </tr>
+                    ) : submissionsError ? (
+                        <tr>
+                            <td
+                                colSpan="4"
+                                className="text-center py-8 text-red-400"
+                            >
+                                Error loading submissions.
+                            </td>
+                        </tr>
+                    ) : mySubmissions.length > 0 ? (
+                        mySubmissions.map((submission, index) => (
+                            <tr
+                                key={index}
+                                className="border-b border-cyan-700 hover:bg-slate-800 transition"
+                            >
+                                
+
+                                <td className="px-3 py-3 w-[15%] font-semibold">
+                                    {submission.submissionID}
+                                </td>
+
+                                <td className="px-3 py-3 w-[25%] font-semibold">
+                                    {/* <span
+                                        className={`px-3 py-1 text-start text-sm font-medium `}
+                                    > */}
+                                        {submission.language}
+                                    {/* </span> */}
+                                </td>
+
+                                <td className="px-3 py-3 text-start ps-5 w-[40%] font-semibold">
+                                    {/* <span
+                                        className={`px-3 py-1 text-sm font-medium `}
+                                    > */}
+                                        {submission.verdict}
+                                    {/* </span> */}
+                                </td>
+
+                                <td className="px-3 py-3 text-start ps-5 w-[20%] text-cyan-400 font-medium text-sm cursor-pointer"
+                                    onClick={async () => {
+                                        try {
+                                            const res = await axios.get(
+                                                `${import.meta.env.VITE_BACKEND_URI}/v1/user/getOneSubmission/${submission.submissionID}`,
+                                                {
+                                                    headers: {
+                                                        Authorization: `Bearer ${localStorage.getItem("token")}`,
+                                                    },
+                                                }
+                                            );
+                                            setCode(res.data.submission.code);
+                                            setLanguage(res.data.submission.language);
+                                        } catch (err) {
+                                            console.error(err.message);
+                                        }
+                                    }}    
+                                >
+                                    Revert code
+                                </td>
+
+                            </tr>
+                        ))
+                    ) : (
+                        <tr>
+                            <td
+                                colSpan="4"
+                                className="text-center py-8 text-gray-400"
+                            >
+                                No data found.
+                            </td>
+                        </tr>
+                    )}
+                </tbody>
+
+            </table>
+        </div>
+    );
+}
 
 export default Problem;

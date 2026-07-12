@@ -52,6 +52,39 @@ const addTestCase = () => {
         return true;
     }
 
+    const generateWithAI = async() => {
+        try{
+            const tc = JSON.stringify({
+                testCases
+            })
+            const res = await axios.post(
+                `${import.meta.env.VITE_BACKEND_URI}/v1/ai/generateTestCases`,
+                { 
+                    testCases: tc,
+                    problemID: problemID
+                 },
+                {
+                    headers: {
+                        Authorization: `Bearer ${localStorage.getItem("token")}`,
+                    },
+                }
+            )
+            toast.success("Test cases generated successfully.", {autoClose: 3000});
+            console.log(res.data);
+            const aiTestCases = res.data.testCases.testCases.map(tc => ({
+                input: tc.input,
+                expectedOutput: tc.output,
+                isHidden: true,
+            }));
+
+            setTestCases(prev => [...prev, ...aiTestCases]);
+            
+        }catch(err){
+            console.log(err.message);
+            toast.error("Failed to generate test cases.", {autoClose: 3000});
+        }
+    }
+
     const submit = async () => {
         try {
             const res = await axios.post(
@@ -71,7 +104,8 @@ const addTestCase = () => {
             });
         } catch (err) {
             console.log(err.message);
-            toast.error("Failed to add test cases.", { autoClose: 3000 });
+            const message = err.response?.data?.message || "Failed to add test cases"
+            toast.error(message, { autoClose: 3000 });
         }
     }
 
@@ -207,6 +241,12 @@ const addTestCase = () => {
                     >
                         Save All Test Cases
                     </button>
+
+                    <buton
+                        onClick={generateWithAI}
+                        className="fixed bottom-10 right-6 h-24 w-24 text-center text-sm rounded-full bg-orange-600 hover:bg-orange-700 text-gray-100 shadow-xl hover:scale-105 transition-all duration-200 flex items-center justify-center z-50">
+                        Generate with AI
+                    </buton>
 
                 </div>
 

@@ -1,17 +1,18 @@
-import { useState } from "react";
+import { use, useState } from "react";
 import MonacoEditor from "./MonacoEditor";
 import axios from 'axios';
 
 const Compiler = () => {
     document.title = "Compiler";
 
-    const [code, setCode] = useState("// Write your code here");
-    const [language, setLanguage] = useState("cpp");
+    const [language, setLanguage] = useState("java");
     const [input, setInput] = useState("");
-    const [output, setOutput] = useState("Your output will appear here...");
+    const [output, setOutput] = useState("");
+    const [runEnabled, setRunEnabled] = useState(true);
     const javaSample = `import java.util.*;
+import java.io.*;
 class Main {
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
         System.out.println("Hello, World!");
     }
 }`;
@@ -24,8 +25,10 @@ int main() {
     const pythonSample = `print("Hello, World!")`;
     const jsSample = `console.log("Hello, World!");`;
 
+    const [code, setCode] = useState(javaSample);
+
     const handleRun = async () => {
-        
+        setRunEnabled(false);
         setOutput("Running...");
         try{
             // console.log(code);
@@ -48,7 +51,9 @@ int main() {
             }else{
                 setOutput(res.data.output.output);
             }
+            setRunEnabled(true);
         }catch(err){
+            setRunEnabled(true);
             console.log(err.message);
             setOutput("Error: " + err.message);
         }
@@ -87,6 +92,7 @@ int main() {
                             <h1>Input</h1>
                             <textarea className="w-full h-full bg-slate-800 text-gray-300 border-0 rounded-lg px-1 py-2"
                             value={input}
+                            placeholder="Enter yout input here..."
                             onChange={(e)=>setInput(e.target.value)}
                             
                             ></textarea>
@@ -96,16 +102,18 @@ int main() {
                             <h1>Output</h1>
                             <textarea className="w-full h-full bg-slate-800 text-gray-300 border-0 rounded-lg px-1 py-2"
                             value={output}
+                            placeholder="Your output will appear here..."
                             disabled
                             
                             ></textarea>
                         </div>
 
-                        <div 
+                        <button 
                         onClick={handleRun}
-                        className="w-full mt-5 bg-blue-500 h-[15%] cursor-pointer rounded-lg hover:bg-blue-600 text-white font-medium text-lg flex justify-center items-center" >
+                        disabled={!runEnabled}
+                        className="w-full mt-5 bg-blue-500 h-[15%] cursor-pointer rounded-lg hover:bg-blue-600 text-white font-medium text-lg flex justify-center items-center disabled:bg-gray-500 disabled:cursor-not-allowed" >
                             Run Code
-                        </div>
+                        </button>
                             
                     </div>
                 </div>

@@ -14,6 +14,11 @@ const AdminCreateProblem = () => {
     const [memory, setMemory] = useState("");
     const [topics, setTopics] = useState([]);
     const [topicInput, setTopicInput] = useState("");
+    const [submitText, setSubmitText] = useState("Verify problem");
+    const [scoreVisible, setScoreVisible] = useState(false);
+    const [expertReport, setExpertReport] = useState("");
+    const [verified, setVerified] = useState(false);
+    const [autoCompleteClicked, setAutoCompleteClicked] = useState(false);
 
     const addTopic = () => {
         const topic = topicInput.trim();
@@ -41,12 +46,91 @@ const AdminCreateProblem = () => {
         setTopics(topics.filter((t) => t !== topic));
     };
 
+    const handleAutoComplete = async () => {
+        if(autoCompleteClicked){
+            toast.info("Already generating...")
+            return;
+        }
+        toast.info("Generating optimized problem statement...",{autoClose:2000});
+        
+        setAutoCompleteClicked(true);
+        try{
+            const res = await axios.post(
+                `${import.meta.env.VITE_BACKEND_URI}/v1/ai/autoCompleteProblem`,
+                {
+                    problem: statement
+                },
+                {
+                    headers:{
+                        Authorization: `Bearer ${localStorage.getItem("token")}`
+                    }
+                }
+            );
+            setStatement(res.data.problem);
+            
+        } catch(err){
+            console.log(err.message);
+            toast.error("Could not autocomplete problem", {autoClose:3000});
+            setAutoCompleteClicked(false);
+        }
+    }
+
+    const getReport = async () => {
+        if(!statement || !title || !diff || !time || !memory || !topics.length){
+            toast.warning("Please fill all the fields", {autoClose:3000});
+            return;
+        }
+        toast.info("Getting report...", {autoClose: 2000});
+        try{
+            const res = await axios.post(
+                `${import.meta.env.VITE_BACKEND_URI}/v1/ai/verifyProblem`,
+                {
+                    problem: statement,
+                    title,
+                    difficulty: diff,
+                    timeLimitMs: Number(time),
+                    memoryLimitMB: Number(memory),
+                    topics,
+                },
+                {
+                    headers:{
+                        Authorization: `Bearer ${localStorage.getItem("token")}`
+                    }
+                }
+            );
+            if(res.data.score.split(" ")[0]>=80){
+                toast.success("Problem is good to go!", {autoClose:3000});
+                setExpertReport("Problem qualified with score of "+res.data.score);
+                setVerified(true);
+                setSubmitText("Create Problem");
+
+            } else {
+                toast.warning("Problem did not meet the criteria!", {autoClose:3000});
+                setExpertReport("Score : "+res.data.score);
+            }
+            setScoreVisible(true);
+        } catch(err){
+            console.log(err.response?.data?.message);
+            toast.error("Could not get report", {autoClose:3000});
+        }
+    }
+
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        toast.info("Creating problem...",{
-            autoClose: 2000,
-        })
+        if(!title || !statement || !diff || !time || !memory || !topics.length){
+            toast.warning("Please fill all the fields", {autoClose:3000});
+            return;
+        }
+
+        if(!verified){
+            toast.warning("Please get a report first", {autoClose:3000});
+            return;
+        }
+
+        toast.info("Creating problem...",
+            {autoClose: 2000}
+        )
 
         const problemData = {
             title,
@@ -68,7 +152,7 @@ const AdminCreateProblem = () => {
         if(res.status === 201){
             toast.success("Problem created successfully",{
                 onClose:()=>{
-                    navigate(`/admin/addTestCases/${res.data.problemID}`, {replace: true});
+                    navigate(`/admin/addTestCases/${res.data.problem.problemID}`, {replace: true});
                 }
             }
             );
@@ -81,7 +165,7 @@ const AdminCreateProblem = () => {
     };
 
     return (
-        <div className="w-full flex-col font-serif p-5 text-[16px]">
+        <div className="w-full flex-col font-serif p-5 bg-slate-900 text-[16px]">
             <div className="text-yellow-300 border border-yellow-500 flex justify-center text-[20px] py-2">
                 Please enter problem details
             </div>
@@ -161,10 +245,12 @@ const AdminCreateProblem = () => {
                             </label>
 
                             <textarea
-                                placeholder="Given an array of integers..."
+                                placeholder="Provide a detailed problem statement along with constraints, input and output format, and possible data type warnings..."
                                 value={statement}
-                                onChange={(e) =>
+                                onChange={(e) =>{
                                     setStatement(e.target.value)
+                                    setVerified(false);
+                                }
                                 }
                                 className="flex-1 h-56 bg-cyan-50 text-gray-900 border-2 border-cyan-600 rounded px-3 py-2 placeholder:text-gray-600"
                             />
@@ -222,13 +308,33 @@ const AdminCreateProblem = () => {
                         </div>
                     </div>
 
+
+                    {
+                        scoreVisible && (
+                    <div className = "w-full text-start mx-10 my-5 p-4 rounded-md border border-2 border-cyan-500 bg-green-200 h-auto text-black font-semibold">
+                        {expertReport}
+                        
+                    </div>
+                        )
+                    }
+
+                    {
+                        (statement.trim().length>10) && !autoCompleteClicked &&
+                        <buton
+                            onClick={handleAutoComplete} 
+                            className="fixed bottom-10 right-6 h-24 w-24 text-center text-sm rounded-full bg-orange-600 hover:bg-orange-700 text-gray-100 shadow-xl hover:scale-105 transition-all duration-200 flex items-center justify-center z-50">
+                            Stuck with idea? Auto complete
+                        </buton>
+                    }
+
                     {/* Submit */}
                     <div className="flex justify-between">
                         <button
-                            type="submit"
+                            type="button"
+                            onClick={verified? handleSubmit: getReport}
                             className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-2 rounded"
                         >
-                            Create Problem
+                            {submitText}
                         </button>
                         
                     </div>

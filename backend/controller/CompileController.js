@@ -2,6 +2,7 @@ const axios = require("axios");
 const TestCases = require("../model/TestCases");
 const Submissions = require("../model/Submissions");
 const Counter = require("../model/Counter");
+const User = require("../model/Users");
 
 const run = async (req, res) => {
     try{
@@ -24,52 +25,118 @@ const run = async (req, res) => {
 }
 
 const submit = async (req, res) => {
-    try{
-        const {language, code, problemID} = req.body;
-        console.log(language, problemID, code);
-        if(code==undefined){
-            return res.status(400).json({"message":"Code is required"});
+    try {
+        const { language, code, problemID } = req.body;
+
+        if (!code) {
+            return res.status(400).json({
+                message: "Code is required"
+            });
         }
-        const testCases = await TestCases.find({problemID:problemID}).sort({testCaseID:1});
-        let i=0;
-        let verdict="Accepted";
-        console.log(testCases);
+
+        const testCases = await TestCases.find({ problemID }).sort({ testCaseID: 1 });
+
+        if (testCases.length === 0) {
+            return res.status(404).json({
+                message: "No test cases found for this problem."
+            });
+        }
+
+        let verdict = "Accepted";
+        let testCaseNumber = 1;
+
         for (const testCase of testCases) {
-            const input = testCase.input;
-            const expectedOutput = testCase.expectedOutput;
-            const testCaseOutput = await axios.post(`${process.env.COMPILER_URI}/run`,
-            {
-                "language":language,
-                "code": code,
-                "input": input
-            }
-            )
-            console.log(testCaseOutput.data.output, expectedOutput)
-            const result = compare(expectedOutput, testCaseOutput.data.output);
-            if(!result){
-                verdict=`Wrong Answer on test case ${i+1}`;
+            try {
+                const compilerRes = await axios.post(
+                    `${process.env.COMPILER_URI}/run`,
+                    {
+                        language,
+                        code,
+                        input: testCase.input
+                    }
+                );
+
+                // If your compiler returns verdicts like TLE/MLE/RE
+                if (compilerRes.data.verdict) {
+                    const compilerVerdict = compilerRes.data.verdict;
+
+                    if (
+                        compilerVerdict === "Time Limit Exceeded" ||
+                        compilerVerdict === "Memory Limit Exceeded" ||
+                        compilerVerdict === "Runtime Error" ||
+                        compilerVerdict === "Compilation Error"
+                    ) {
+                        verdict = compilerVerdict;
+                        break;
+                    }
+                }
+
+                const output = compilerRes.data.output;
+
+                if (!compare(testCase.expectedOutput, output)) {
+                    verdict = `Wrong Answer on test case ${testCaseNumber}`;
+                    break;
+                }
+
+                testCaseNumber++;
+            } catch (err) {
+                verdict = "Compilation Error";
                 break;
             }
-            i++;
         }
-        const subID = await getSubId();
-        const newSubmission = new Submissions({
-            submissionID:subID,
-            problemID:problemID,
-            language:language,
-            code:code,
-            verdict:verdict,
+
+        if (verdict === "Accepted") {
+            const previousAccepted = await Submissions.exists({
+                userID: req.user.userID,
+                problemID,
+                verdict: "Accepted"
+            });
+
+            if (!previousAccepted) {
+                const problem = testCases[0];
+
+                const score =
+                    problem.difficulty === "easy"? 10
+                        : problem.difficulty === "medium"? 20
+                        : problem.difficulty === "hard"? 30
+                        : 0;
+
+                await User.updateOne(
+                    { userID: req.user.userID },
+                    {
+                        $inc: {
+                            score,
+                            problems: 1
+                        }
+                    }
+                );
+            }
+        }
+
+        const submissionID = await getSubId();
+
+        await new Submissions({
+            submissionID,
+            problemID,
+            language,
+            code,
+            verdict,
             userID: req.user.userID,
-            submissionTime : Date.now(),
-            
-        })
-        await newSubmission.save();
-        return res.status(200).json({"verdict":verdict});
-    }catch(err){
-        console.log(err.message);
-        return res.status(400).json({"message": `Compilation failed ${err.message}`});
+            submissionTime: new Date()
+        }).save();
+
+        return res.status(200).json({
+            verdict
+        });
+
+    } catch (err) {
+        console.error(err);
+
+        return res.status(500).json({
+            message: `Submission failed: ${err.message}`
+        });
     }
-}
+};
 
 const compare = (s1, s2) =>{
     s1=s1.trim();
