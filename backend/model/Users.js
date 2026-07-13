@@ -35,6 +35,13 @@ const userSchema = new mongoose.Schema({
     isAdmin: {
         type: Boolean,
         default: false
+    },
+    isAdminRequestPending: {
+        type: Boolean,
+        default: false
+    },
+    adminInfo: {
+        type: String
     }
 });
 

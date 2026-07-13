@@ -56,4 +56,10 @@ Format your output as json like {"testCases":[{"input":"<stdin>", "output":"<std
 Don't use any markdown text or comments. Problem: 
 `
 
-module.exports = { SYSTEM_PROMPT, VERIFY_PROBLEM_PROMPT, AUTOCOMPLETE_PROBLEM_PROMPT, VERIFY_TEST_CASES_PROMPT, GENERATE_TEST_CASES_PROMPT };
+const ADMIN_REQUEST_PROMPT = `
+You are head admin of Code Climb (Coding platform).
+A user requested admin rights to create and manage problems. Return a confidence score out of 100 based on various factors for a good admin. Ensure coding profile links are attached. Request will be accepted only if score i more than 60. If confidence score is more than 60, just return score, otherwise confidence score (only number) followed by one line comment for rejection.
+Don't use markdown text or extra comments. User proposal: 
+`
+
+module.exports = { SYSTEM_PROMPT, VERIFY_PROBLEM_PROMPT, AUTOCOMPLETE_PROBLEM_PROMPT, VERIFY_TEST_CASES_PROMPT, GENERATE_TEST_CASES_PROMPT, ADMIN_REQUEST_PROMPT};

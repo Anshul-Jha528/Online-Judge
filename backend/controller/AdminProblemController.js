@@ -5,6 +5,61 @@ const User = require('../model/Users');
 const Problems = require('../model/Problems');
 const {verifyTestCase} = require('./aiController'); 
 
+
+const getPendingAdminRequests = async (req, res) =>{
+    try{
+        const existingUser = await User.find({isAdminRequestPending: true}).select("userID fullName adminInfo");
+        if(!existingUser){
+            return res.status(400).json({ message: "No pending admin requests" });
+        }
+        res.status(200).json({ message: "Pending admin requests", requests: existingUser });
+    }catch(err){
+        console.log(err);
+        return res.status(500).json({ message: "Internal server error" });
+    }
+}
+
+const makeUserAdmin = async (req, res) => {
+    try {
+        const {userID} = req.body;
+        if(!userID){
+            return res.status(400).json({ message: "User ID is required" });
+        }
+        const existingUser = await User.findOne({userID: userID});
+        if(!existingUser){
+            return res.status(400).json({ message: "User not found" });
+        }
+        existingUser.isAdmin = true;
+        existingUser.isAdminRequestPending = false;
+        await existingUser.save();
+        res.status(200).json({ message: "User made admin successfully"});
+    } catch (error) {
+        console.error("Error while making user admin ", error);
+        res.status(500).json({ message: "Couldn't make admin" });
+    }
+}
+
+const rejectAdminRequest = async (req, res) => {
+    try{
+        const {userID} = req.body;
+        if(!userID){
+            return res.status(400).json({ message: "User ID is required" });
+        }
+        const existingUser = await User.findOne({userID: userID});
+        if(!existingUser){
+            return res.status(400).json({ message: "User not found" });
+        }
+        existingUser.isAdminRequestPending = false;
+        existingUser.adminInfo = "";
+        await existingUser.save();
+        res.status(200).json({ message: "Admin request rejected successfully" });
+    }catch(err){
+        console.log(err);
+        return res.status(500).json({ message: "Internal server error" });
+    }
+}
+
+
 const createProblem = async (req, res) => {
     try {
         const { title, statement, difficulty, topics, timeLimitMs, memoryLimitMB } = req.body;
@@ -289,4 +344,4 @@ const deleteTestCase = async (req, res) => {
     }
 }
 
-module.exports = { createProblem, updateProblem, deleteProblem, getAllProblems, getProblem, getAllTestCases, getTestCase, updateTestCase, createTestCase, deleteTestCase, createMultipleTestCases };
+module.exports = {getPendingAdminRequests, makeUserAdmin, rejectAdminRequest, createProblem, updateProblem, deleteProblem, getAllProblems, getProblem, getAllTestCases, getTestCase, updateTestCase, createTestCase, deleteTestCase, createMultipleTestCases };

@@ -2,6 +2,8 @@ const User = require("../model/Users");
 const bcrypt = require("bcryptjs");
 const crypto = require("crypto");
 const jwt = require("jsonwebtoken");
+const { generateResponse } = require("../ai/aiService");
+const {ADMIN_REQUEST_PROMPT} = require("../ai/prompt");
 
 const registerUser = async (req, res) => {
     try {
@@ -119,23 +121,64 @@ const changePassword = async(req, res) => {
     }
 }
 
-const makeUserAdmin = async (req, res) => {
-    try {
-        const userID = req.body.userID;
-        if(!userID){
-            return res.status(400).json({ message: "User ID is required" });
+const requestAdminRights = async(req, res) =>{
+    try{
+        const {info} = req.body;
+        if(!info){
+            return res.status(400).json({ message: "Info is required" });
         }
-        console.log(userID);
-        const existingUser = await User.findOne({userID: userID});
+        const existingUser = await User.findOne({userID: req.user.userID});
         if(!existingUser){
-            return res.status(400).json({ message: "User not found" });
+            return res.status(404).json({ message: "User not found" });
         }
-        existingUser.isAdmin = true;
+        if(existingUser.isAdmin){
+            return res.status(400).json({ message: "User is already an admin" });
+        }
+        const eligibilityScore = await generateResponse(ADMIN_REQUEST_PROMPT+info);
+        // console.log(eligibilityScore);
+        const [score, ...reason] = eligibilityScore.trim().split(' ');
+        
+        if(Number(score)<70){
+            return res.status(400).json({ message: reason.join(' ')});
+        }
+        
+        existingUser.isAdminRequestPending = true;
+        existingUser.adminInfo = info;
         await existingUser.save();
-        res.status(200).json({ message: "User made admin successfully", user: existingUser });
-    } catch (error) {
-        console.error("Error while making user admin ", error);
-        res.status(500).json({ message: "Couldn't make admin" });
+        res.status(200).json({ message: "Admin rights requested successfully", user: existingUser });
+        
+    }catch(err){
+        console.log(err.message);
+        res.status(500).json({ message: "Couldn't request admin rights" });
+    }
+}
+
+const withdrawAdminRequest = async(req, res) => {
+    try{
+        const existingUser = await User.findOne({userID: req.user.userID});
+        if(!existingUser){
+            return res.status(404).json({ message: "User not found" });
+        }
+        existingUser.isAdminRequestPending = false;
+        existingUser.adminInfo = "";
+        await existingUser.save();
+        res.status(200).json({ message: "Admin request withdrawn successfully", user: existingUser });
+    }catch(err){
+        console.log(err.message);
+        res.status(500).json({ message: "Couldn't withdraw admin request" });
+    }
+}
+
+const isAdminRequestPending = async(req, res) => {
+    try{
+        const existingUser = await User.findOne({userID: req.user.userID});
+        if(!existingUser){
+            return res.status(404).json({ message: "User not found" });
+        }
+        res.status(200).json({ isPending: existingUser.isAdminRequestPending});
+    }catch(err){
+        console.log(err.message);
+        res.status(500).json({ message: "Couldn't get admin request status" });
     }
 }
 
@@ -180,4 +223,4 @@ const deleteAccount = async(req, res) =>{
     }
 }
 
-module.exports = { registerUser, loginUser, getUserData, updateUserData, changePassword, makeUserAdmin, removeUserAdmin, deleteAccount };
+module.exports = { registerUser, loginUser, getUserData, updateUserData, changePassword, requestAdminRights, withdrawAdminRequest, isAdminRequestPending, removeUserAdmin, deleteAccount };

@@ -8,6 +8,7 @@ import axios from "axios";
 import { toast } from "react-toastify";
 
 const Dashboard = () =>{
+    document.body.style.backgroundColor = "#0f172a";
 
     const navigate = useNavigate();
 

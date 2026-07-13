@@ -1,5 +1,5 @@
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import Swal from "sweetalert2";
 
@@ -7,72 +7,146 @@ import Swal from "sweetalert2";
 const GetAdminRights = () => {
     document.title = "Admin Panel";
 
-    const navigate = useNavigate();
+    const [info, setInfo] = useState("");
+    const [disabled, setDisabled] = useState(false);
+    const [pending, setPending] = useState(false);
 
-    const makeAdmin = async () => {
-        toast.info("Please wait...", { autoClose: 1500 });
+    useEffect(() =>{
+        async function checkPendingStatus(){
+            try{
+                const res = await axios.get(
+                    `${import.meta.env.VITE_BACKEND_URI}/v1/auth/isRequestPending`,
+                    {
+                        headers:{
+                            Authorization: `Bearer ${localStorage.getItem("token")}`
+                        }
+                    }
+                )
+                if(res.data.isPending){
+                    setPending(true);
+                }
+                
+            }catch(err){
+
+            }
+        }
+        checkPendingStatus();
+    },[])
+
+    const handleAdmin = async () => {
+        if (disabled) return;
+        if (info.trim().length<20){
+            toast.info("Please fill the required fields", {autoClose:2000}) 
+            return;
+        }
+
+        setDisabled(true);
         try {
             const res = await axios.post(
-                `${import.meta.env.VITE_BACKEND_URI}/v1/auth/makeUserAdmin`,
+                `${import.meta.env.VITE_BACKEND_URI}/v1/auth/requestAdminRights`,
                 {
-                    userID: localStorage.getItem("userID"),
+                    info: info
                 },
                 {
                     headers: {
-                        Authorization: `Bearer ${localStorage.getItem("token")}`,
-                    },
+                        Authorization: `Bearer ${localStorage.getItem("token")}`
+                    }
                 }
-            );
-            console.log(res);
-            if (res.status === 200) {
-                localStorage.setItem("isAdmin", true);
-                toast.success("Admin Rights Granted Successfully", {
-                    onClose: () => {
-                        navigate("/admin/createProblem", { replace: true });
-                    },
-                    autoClose: 2000,
-                });
-            }
-
-
+            )
+            toast.success("Request submitted successfully", {
+                autoClose: 2000
+            })
+            setPending(true);
+            setDisabled(true);
         } catch (err) {
-            console.log(err.message);
-            toast.error("Failed to get Admin Rights");
+            console.log(err.response?.data?.message);
+            toast.error(err.response?.data?.message || "Couldn't submit request", { autoClose: 2000 })
+            setDisabled(false);
         }
 
     }
-
-    const handleAdmin = () => {
+    const handleWithdraw = async() => {
         Swal.fire({
-            title: "Are you sure?",
-            text: "You want to make yourself admin?",
-            icon: "warning",
-            showCancelButton: true,
-            confirmButtonText: "Yes, Make me admin!",
-            cancelButtonText: "Cancel",
-            confirmButtonColor: "#e14b61ff",
-            cancelButtonColor: "#0fbf79ff"
-        }).then((result) => {
-            if (result.isConfirmed) {
-                makeAdmin();
+            title:"Withdraw Request",
+            text:"Are you sure you want to withdraw your request?",
+            icon:"warning",
+            showCancelButton:true,
+            confirmButtonText:"Withdraw",
+            cancelButtonText:"Cancel",
+            confirmButtonColor:"#f7004eff",
+            cancelButtonColor:"#00bc52ff",
+            preConfirm:async() => {
+                try{
+                    await axios.post(
+                        `${import.meta.env.VITE_BACKEND_URI}/v1/auth/withdrawAdminRequest`,
+                        {},
+                        {
+                            headers:{
+                                Authorization: `Bearer ${localStorage.getItem("token")}`
+                            }
+                        }
+                    )
+                    toast.success("Request withdraw successfully", {autoClose:2000})
+                    setPending(false);
+                    return true;
+                }catch(err){
+                    console.log(err.response?.data?.message);
+                    toast.error(err.response?.data?.message || "Couldn't withdraw request", { autoClose: 2000 })
+                    return false;
+                }
             }
+            
         })
     }
 
 
     return (
-        <div className="w-full min-h-screen bg-slate-900 flex flex-col justify-center items-center px-5 py-5 text-gray-200">
-            <div className="text-gray-100 text-[20px] text-center py-[20px]">
-                You need to get Admin Rights to create problems.
-            </div>
-            <div
-                onClick={handleAdmin}
-                className="bg-red-600 w-[200px] h-[200px] rounded-full flex items-center justify-center hover:bg-red-500 px-4 py-2 transition cursor-pointer"
-            >
-                Get admin rights
-            </div>
+        <>
+            {
+                pending &&
+                <div className="w-full bg-slate-900 flex flex-col items-center px-5 py-5 text-gray-200">
+                    <div className="text-gray-200 text-[20px] text-center py-[20px]">
+                        Your request has been submitted successfully. Please wait for admin approval. It may take 24 hours to 48 hours for your request to be approved.
+                    </div>
+                    <button 
+                        onClick={() => handleWithdraw()}
+                        className="bg-blue-500 text-white px-4 py-2 rounded cursor-pointer hover:bg-red-600"
+                        >
+                            Withdraw Request
+                    </button>
+                </div>
 
-        </div>
+            }
+            {
+                !pending &&
+                <>
+                    <div className="w-full bg-slate-900 flex flex-col items-center px-5 py-5 text-gray-200">
+                        <div className="text-yellow-200 text-2xl text-center font-medium py-[20px]">
+                            Become an admin
+                        </div>
+
+                        <div className="text-xl font-medium mx-2">
+                            Admins can create and modify problems on CodeClimb. Please tell us why you would be a good addition to the admin team.
+                        </div>
+                        <textarea
+                            className="border border-gray-400 p-2 w-[90%]  m-4 h-40 rounded bg-slate-700 text-white"
+                            value={info}
+                            onChange={(e) => setInfo(e.target.value)}
+                            placeholder="Explain your past experiences, programming skils, links to coding profiles and your objective as an admin..."
+                        />
+
+                        <button 
+                            onClick={handleAdmin}
+                            disabled={disabled}
+                            className="bg-blue-500 text-white px-4 py-2 rounded cursor-pointer hover:bg-red-600">
+                            Submit Request
+                        </button>
+
+                    </div>
+                </>
+            }
+
+        </>
     )
 }
 

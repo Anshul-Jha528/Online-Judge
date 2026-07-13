@@ -71,6 +71,9 @@ const SidePanel = ({isOpen}) => {
                         <NavLink to="/admin/myProblems" className="flex px-[30px] py-[15px] cursor-pointer justify-start items-center hover:bg-red-600">
                             My Problems
                         </NavLink>
+                        <NavLink to="/admin/requests" className="flex px-[30px] py-[15px] cursor-pointer justify-start items-center hover:bg-red-600">
+                            Admin Requests
+                        </NavLink>
                     </>
                 )
             }

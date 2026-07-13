@@ -15,6 +15,7 @@ import EditTestCases from './Components/AdminEditTestCases'
 import GetAdminRights from './Components/GetAdminRights'
 import Compiler from './Components/Compiler'
 import Problem from './Components/Problem'
+import AdminRequests from './Components/AdminRequests'
 
 function App() {
 
@@ -43,6 +44,8 @@ function App() {
           <Route path="/admin/createProblem" element={<AdminCreateProblem />} />
 
           <Route path="/admin/myProblems" element={<AdminProblems />} />
+
+          <Route path="/admin/requests" element={<AdminRequests />} />
 
           <Route path="/compiler" element={<Compiler />} />
 
