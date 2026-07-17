@@ -120,7 +120,7 @@ const AdminRequests = () => {
                                 <div className="flex flex-col w-full rounded bg-slate-800 m-4 ">
                                     <div className="flex flex-row w-full items-center justify-between">
                                         <div className="w-[50%] flex flex-col p-2 m-1">
-                                            <h1 className="text-sm font-medium">UserID: {request.userID}</h1>
+                                            <h1 className="text-sm font-medium">Email: {request.email}</h1>
                                             <h1 className="text-sm font-medium">Name: {request.fullName}</h1>
                                         </div>
                                         <div className="w-[50%] flex flex-row gap-1 p-2 m-3 justify-end items-center">

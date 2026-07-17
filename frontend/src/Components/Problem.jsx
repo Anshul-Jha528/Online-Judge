@@ -3,6 +3,7 @@ import axios from "axios";
 import { useParams } from "react-router-dom";
 import MonacoEditor from "./MonacoEditor";
 import AIChatBot from "./AIChatBot";
+import { toast } from "react-toastify";
 
 const Problem = () => {
     useEffect(() => {
@@ -153,10 +154,13 @@ int main() {
             setType('verdict');
             setEditing(false);
             setVerdict(res.data.verdict);
+            if(res.data.points>0){
+                toast.success("Points earned : " + res.data.points, {autoClose:2000});
+            }
             
         } catch (err) {
             console.error(err.message);
-            setVerdict("Error: " + err.message);
+            setVerdict("Error: " + err.response?.data?.message);
             setSubmitEnabled(true);
         }
     };

@@ -5,6 +5,7 @@ const Leaderboard = () => {
     document.title = "Leaderboard";
 
     const [leaderboard, setLeaderboad] = useState([]);
+    let rank=1;
 
     useEffect(() => {
         const getLeaderboard = async () => {
@@ -42,30 +43,35 @@ const Leaderboard = () => {
                         <th className="py-3 px-3 text-left w-[35%]">Name</th>
                         <th className="py-3 px-3 text-left w-[25%]">Score</th>
                         <th className="py-3 px-3 text-left w-[15%]">Problems Solved</th>
-                        <th className="py-3 px-3 text-center w-[15%]">Used ID</th>
                     </tr>
                 </thead>
 
                 <tbody>
                     {leaderboard.length > 0 ? (
-                        leaderboard.map((leaderboard, index) => (
+                        leaderboard.map((user, index) => {
+                            
+                            if(index>0 && user.score!=leaderboard[index-1].score){
+                                rank+=1;
+                            }
+                            
+                            return (
                             <tr
                                 key={index}
                                 className="border-b border-cyan-700 hover:bg-slate-800 transition"
                             >
                                 <td className="px-3 py-3">
-                                    {index+1}
+                                    {rank}
                                 </td>
 
                                 <td className="px-3 py-3 font-semibold">
-                                    {leaderboard.fullName}
+                                    {user.fullName}
                                 </td>
 
                                 <td className="px-3 py-3">
                                     <span
                                         className={`px-3 py-1 text-sm font-medium `}
                                     >
-                                        {leaderboard.score}
+                                        {user.score}
                                     </span>
                                 </td>
 
@@ -73,17 +79,13 @@ const Leaderboard = () => {
                                     <span
                                         className={`px-3 py-1 text-sm font-medium `}
                                     >
-                                        {leaderboard.problems}
+                                        {user.problems}
                                     </span>
-                                </td>
-
-                                <td className="px-3 py-3 text-center text-cyan-400 font-medium text-sm">
-                                    {leaderboard.userID}
                                 </td>
 
                             </tr>
-                        ))
-                    ) : (
+                        )})
+                     ) : (
                         <tr>
                             <td
                                 colSpan="5"

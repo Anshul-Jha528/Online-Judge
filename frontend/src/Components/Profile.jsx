@@ -17,6 +17,8 @@ const Profile = () => {
     const [newPasswordConfirm, setNewPasswordConfirm] = useState("");
     const [currentPassword, setCurrentPassword] = useState("");
     const [isAdmin, setIsAdmin] = useState(localStorage.getItem("isAdmin") == "true");
+    const [score, setScore] = useState(0);
+    const [problems, setProblems] = useState(0);
 
     useEffect(() => {
         const fetchUser = async () => {
@@ -30,6 +32,9 @@ const Profile = () => {
                     }
                 );
                 console.log(res.data);
+                localStorage.setItem("fullName", res.data.user.fullName);
+                localStorage.setItem("isAdmin", res.data.user.isAdmin);
+                setIsAdmin(res.data.user.isAdmin);
                 setUserData(res.data.user);
                 setFullName(res.data.user.fullName);
             } catch (err) {
@@ -251,9 +256,7 @@ const Profile = () => {
                     <p className="text-gray-100 mt-1 text-2xl font-bold">
                         My Profile
                     </p>
-                    <p className="text-yellow-200 mt-1 text-sm italic">
-                        User ID: {userData.userID}
-                    </p>
+                    
                 </div>
 
                 { isAdmin &&
@@ -334,7 +337,7 @@ const Profile = () => {
                             </p>
 
                             <h2 className="text-3xl font-bold mt-2 text-green-400">
-                                {userData.problemsSolved ?? 0}
+                                {userData.problems ?? 0}
                             </h2>
                         </div>
 

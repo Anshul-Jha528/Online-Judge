@@ -17,7 +17,7 @@ const Dashboard = () =>{
         const checkToken  = async ()=>{
             try{
                 const res = await axios.post(
-                    `http://localhost:5000/v1/auth/verifyToken`,
+                    `${import.meta.env.VITE_BACKEND_URI}/v1/auth/verifyToken`,
                     {},
                     {
                         headers: {
