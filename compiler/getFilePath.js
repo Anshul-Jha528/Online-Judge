@@ -2,11 +2,7 @@ const fs = require("fs");
 const path = require('path');
 const {v4:uuid} = require('uuid');
 
-const dirCodes = path.join(__dirname, 'codes');
-
-if (!(fs.existsSync(dirCodes))) {
-    fs.mkdirSync(dirCodes, { recursive: true });
-}
+const dirTemp = path.join(__dirname, 'temp');
 
 const getExtension = (language) => {
     if(language === "cpp") return "cpp";
@@ -15,15 +11,21 @@ const getExtension = (language) => {
     if(language === "javascript") return "js";
 }
 
-const getFilePath = async (language, code) => {
+const getDirectoryPath = (language, code, input) => {
     const id = uuid();
+    const jobDir = path.join(dirTemp, id);
+    fs.mkdirSync(jobDir, {recursive:true});
     const ext = getExtension(language);
-    const filePath = path.join(dirCodes, `${id}.${ext}`);
+    const codeFile = path.join(jobDir,`Main.${ext}`);
+    const inputFile = path.join(jobDir,'input.txt');
+    
 
-    await fs.writeFileSync(filePath, code);
-    return filePath;
+    fs.writeFileSync(codeFile, code);
+    fs.writeFileSync(inputFile, input);
+    
+    return jobDir;
 }
 
 module.exports = {
-    getFilePath
+    getDirectoryPath
 }

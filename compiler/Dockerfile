@@ -16,7 +16,7 @@ RUN npm install
 COPY . .
 
 # Create directories if they don't exist
-RUN mkdir -p codes inputs outputs
+RUN mkdir -p temp
 
 EXPOSE 3000
 

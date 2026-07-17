@@ -3,6 +3,7 @@ const TestCases = require("../model/TestCases");
 const Submissions = require("../model/Submissions");
 const Counter = require("../model/Counter");
 const User = require("../model/Users");
+const Problem = require("../model/Problems");
 
 const run = async (req, res) => {
     try{
@@ -56,7 +57,6 @@ const submit = async (req, res) => {
                     }
                 );
 
-                // If your compiler returns verdicts like TLE/MLE/RE
                 if (compilerRes.data.verdict) {
                     const compilerVerdict = compilerRes.data.verdict;
 
@@ -84,6 +84,7 @@ const submit = async (req, res) => {
                 break;
             }
         }
+        let points = 0;
 
         if (verdict === "Accepted") {
             const previousAccepted = await Submissions.exists({
@@ -93,19 +94,24 @@ const submit = async (req, res) => {
             });
 
             if (!previousAccepted) {
-                const problem = testCases[0];
+                const problem = await Problem.findOne({problemID});
+
 
                 const score =
-                    problem.difficulty === "easy"? 10
-                        : problem.difficulty === "medium"? 20
-                        : problem.difficulty === "hard"? 30
+                    problem.difficulty === "Easy"? 10
+                        : problem.difficulty === "Medium"? 20
+                        : problem.difficulty === "Hard"? 30
                         : 0;
+                points = score;
+
+                console.log(problem);
+                console.log(score);
 
                 await User.updateOne(
                     { userID: req.user.userID },
                     {
                         $inc: {
-                            score,
+                            score:score,
                             problems: 1
                         }
                     }
@@ -126,7 +132,8 @@ const submit = async (req, res) => {
         }).save();
 
         return res.status(200).json({
-            verdict
+            verdict,
+            points
         });
 
     } catch (err) {

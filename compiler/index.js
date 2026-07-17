@@ -1,10 +1,10 @@
 const express = require('express');
-const { getFilePath } = require('./getFilePath');
-const { getInputFilePath } = require('./getInputFilePath');
+const { getDirectoryPath } = require('./getFilePath');
 const {executeCpp} = require('./run/executeCpp');
 const {executePython} = require('./run/executePython');
 const {executeJavascript} = require('./run/executeJavascript');
 const {executeJava} = require('./run/executeJava');
+const {cleanup} = require('./cleanup');
 
 const app = express();
 
@@ -24,9 +24,9 @@ app.post('/run', async (req, res) => {
             message: 'Code is required'
         });
     }
+    let dirPath;
     try{
-        const filePath = await getFilePath(language, code);
-        const inputFilePath = await getInputFilePath(input);
+         dirPath = getDirectoryPath(language, code, input);
         const executors = {
             cpp: executeCpp,
             python: executePython,
@@ -40,24 +40,32 @@ app.post('/run', async (req, res) => {
             throw new Error(`Unsupported language: ${language}`);
         }
 
-        const output = await executor(filePath, inputFilePath);
+        const output = await executor(dirPath);
         res.json({
             success: true,
         output
     });
     }catch(err){
-        let error = err.stderr.replace(
+        console.log(err);
+        let error = err.verdict || err.stderr || err.error?.message || err.message || "Compilation/Runtime Error" 
+        if(error)
+        error = error?.replace(
             /.*[\\/].+\.(cpp|java|py|js):(\d+):(\d+):/g,
             "Line $2, Column $3:"
         );
-        error ="Error: \n"+ error.replace(
+        error ="Error: \n"+ error?.replace(
              /^.*[\\/].+\.(cpp|java|py|js):.*$\r?\n?/gm,
              ""
         );
         return res.status(200).json({
             success: false,
-            output: error || err.stdout || err.message
+            output: error || err.error || err.stdout || err.message
         });
+    }finally{
+        console.log(dirPath);
+        
+        if(dirPath)
+        cleanup(dirPath);
     }
 
 })

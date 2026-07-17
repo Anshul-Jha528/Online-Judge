@@ -8,7 +8,7 @@ const {verifyTestCase} = require('./aiController');
 
 const getPendingAdminRequests = async (req, res) =>{
     try{
-        const existingUser = await User.find({isAdminRequestPending: true}).select("userID fullName adminInfo");
+        const existingUser = await User.find({isAdminRequestPending: true}).select("userID fullName email adminInfo");
         if(!existingUser){
             return res.status(400).json({ message: "No pending admin requests" });
         }
