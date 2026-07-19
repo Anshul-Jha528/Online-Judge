@@ -33,7 +33,10 @@ const SidePanel = ({isOpen}) => {
 
     return (
         <div className=" h-full w-[20%] flex-col bg-cyan-700">
-            <NavLink to="/dashboard" className="flex px-[20px] py-[15px] text-[16px] cursor-pointer justify-start items-center hover:bg-red-600">
+            <NavLink to="/home" className="flex px-[20px] py-[15px] text-[16px] cursor-pointer justify-start items-center hover:bg-red-600">
+                Home
+            </NavLink>
+            <NavLink to="/allproblems" className="flex px-[20px] py-[15px] text-[16px] cursor-pointer justify-start items-center hover:bg-red-600">
                 All Problems
             </NavLink>
             <NavLink to="/submissions" className="flex px-[20px] py-[15px] cursor-pointer justify-start items-center hover:bg-red-600">

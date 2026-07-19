@@ -9,7 +9,7 @@ const Login = () => {
   const navigate = useNavigate();
   useEffect(() => {
     if (localStorage.getItem("token")) {
-        navigate("/dashboard", { replace: true });
+        navigate("/home", { replace: true });
     }
   }, [navigate]);
   const [email, setEmail] = useState("");

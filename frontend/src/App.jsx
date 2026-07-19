@@ -16,6 +16,7 @@ import GetAdminRights from './Components/GetAdminRights'
 import Compiler from './Components/Compiler'
 import Problem from './Components/Problem'
 import AdminRequests from './Components/AdminRequests'
+import Home from './Components/Home'
 
 function App() {
 
@@ -31,7 +32,9 @@ function App() {
 
         <Route element={<Dashboard />}>
 
-          <Route path="/dashboard" element={<ShowAllProblems />} />
+          <Route path="/home" element={<Home />} />
+
+          <Route path="/allproblems" element={<ShowAllProblems />} />
 
           <Route path="/submissions" element={<Submissions />} />
 
