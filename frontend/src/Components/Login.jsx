@@ -47,7 +47,7 @@ const Login = () => {
         })
         setAuthToken(res.data.token, res.data.username, res.data.userID,Boolean(res.data.isAdmin));
         toast.success("Login successful",{
-          onClose:()=>navigate("/Dashboard", {replace:true}),
+          onClose:()=>navigate("/home", {replace:true}),
           autoClose:2000
         })
       }
