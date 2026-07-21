@@ -2,6 +2,7 @@ import { useNavigate } from "react-router-dom";
 import logo from "../assets/logo.svg";
 
 const Home = () => {
+  document.title = "Code Climb";
   const navigate = useNavigate();
   return (
     <>
@@ -252,10 +253,7 @@ const Home = () => {
           <p className="text-lg text-slate-300">
             IIIT Bhopal
           </p>
-          <p className="text-lg text-yellow-300 mt-2">
-            Guided by AlgoUniversity
-          </p>
-
+          
           <p className="text-lg text-slate-500 mt-2">
             &copy; 2026 Code Climb. All rights reserved
           </p>

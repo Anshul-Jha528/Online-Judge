@@ -1,7 +1,9 @@
 import { useState, useEffect } from "react";
 import { Link, replace, useNavigate } from "react-router-dom";
 import axios from "axios";
-import { ToastContainer, toast } from "react-toastify";
+import { toast } from "react-toastify";
+import logo from "../assets/logo.svg";
+
 
 const Login = () => {  
     document.title = "Login";
@@ -65,8 +67,9 @@ const Login = () => {
         
         {/* Login Card */}
         <div className="relative z-10 w-full bg-[#181d33]/40 backdrop-blur-[24px] rounded-[32px] p-10 md:p-12 border border-[#ffffff]/10 shadow-[0_25px_50px_rgba(0,0,0,0.6)]">
+          <img src={logo} alt="logo" className="w-[40%] mx-auto" />
           
-          <div className="text-white text-[28px] font-normal tracking-wide text-center mt-2 mb-8 select-none">
+          <div className="text-white text-[28px] font-normal tracking-wide text-center mb-8 select-none">
             <h1>Welcome Back!</h1>
             <h3 className="text-[20px] text-gray-200">Login to your account</h3>
           </div>
